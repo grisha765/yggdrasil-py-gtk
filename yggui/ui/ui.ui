@@ -13,13 +13,25 @@
         <child>
           <object class="GtkHeaderBar" id="header">
             <child>
-              <object class="GtkButton" id="main_button">
-                <property name="label">Main</property>
+              <object class="GtkButton" id="add_peer_button">
+                <property name="halign">start</property>
+                <property name="hexpand">True</property>
+                <property name="label">+</property>
+                <property name="visible">False</property>
               </object>
             </child>
-            <child type="end">
-              <object class="GtkButton" id="settings_button">
-                <property name="label">Settings</property>
+            <child type="title">
+              <object class="GtkBox">
+                <child>
+                  <object class="GtkButton" id="main_button">
+                    <property name="label">Main</property>
+                  </object>
+                </child>
+                <child type="end">
+                  <object class="GtkButton" id="settings_button">
+                    <property name="label">Settings</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -54,17 +66,8 @@
               <object class="GtkBox" id="settings">
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox">
-                    <child>
-                      <object class="GtkEntry" id="ygg_path_input">
-                        <property name="placeholder-text">./yggdrsil</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="ygg_path_check">
-                        <property name="label">Custom path</property>
-                      </object>
-                    </child>
+                  <object class="GtkBox" id="peers_box">
+                    <property name="orientation">vertical</property>
                   </object>
                 </child>
                 <child>

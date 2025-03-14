@@ -1,0 +1,13 @@
+[project]
+name = "yggdrasil-go-gtk"
+version = "0.1.0"
+description = "Graphical interface for yggdrasil on gtk4 + libadwaita"
+readme = "readme.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pygobject>=3.52.2",
+]
+
+[tool.pyright]
+venvPath = '.'
+venv = '.venv'

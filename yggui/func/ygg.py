@@ -1,13 +1,13 @@
 import subprocess, re
 from threading import Thread
-from pathlib import Path
+from yggui.core.common import Default
 
 def print_output(process):
     for line in process.stdout:
         print(line.decode('utf-8').strip())
 
-def start_yggdrasil(ygg_path):
-    command = ["pkexec", ygg_path, "-useconffile", Path("yggdrasil.conf").resolve()]
+def start_yggdrasil():
+    command = ["pkexec", Default.ygg_path, "-useconffile", Default.config_path.resolve()]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output_thread = Thread(target=print_output, args=(process,))
     output_thread.daemon = True
@@ -23,9 +23,8 @@ def extract_ips(output):
     return re.findall(ipv6_regex, output)
 
 def switch_switched(self, switch, state):
-    print(f'ygg_path: {self.ygg_path}')
     if state and self.process is None:
-        self.process = start_yggdrasil(self.ygg_path)
+        self.process = start_yggdrasil()
         print("Yggdrasil started. Waiting for output...\n")
         self.label.set_label('Disable Yggdrasil')
 

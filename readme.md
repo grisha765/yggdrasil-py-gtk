@@ -24,7 +24,7 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
         ```
     - Put the binary:
         ```bash
-        mv ./yggdrasil ../
+        mv ./yggdrasil $HOME/.local/bin/
         ```
 
 ### Deploy

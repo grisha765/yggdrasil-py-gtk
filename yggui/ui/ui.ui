@@ -42,7 +42,10 @@
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkBox" id="switch_box">
+                    <property name="halign">center</property>
+                    <property name="margin-top">10</property>
+                    <property name="name">switch_box</property>
                     <child>
                       <object class="GtkBox">
                         <child>

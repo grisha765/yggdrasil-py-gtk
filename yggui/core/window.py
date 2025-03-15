@@ -1,7 +1,7 @@
-import gi, json
+import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version('Adw', '1')
-from gi.repository import Gtk, Adw # type: ignore
+from gi.repository import Gtk, Adw, Gdk, Gio # type: ignore
 
 from yggui.func.ygg import switch_switched
 from yggui.func.config import create_config
@@ -9,6 +9,7 @@ from yggui.func.config import create_config
 from yggui.core.common import Default
 
 from yggui.func.peers import add_peer, save_config, load_config
+
 
 class MyApp(Adw.Application):
     def __init__(self, **kwargs):
@@ -22,9 +23,19 @@ class MyApp(Adw.Application):
         self.GOrientation = Gtk.Orientation
         self.peers = []
 
+        css_provider = Gtk.CssProvider()
+        css_file = Gio.File.new_for_path(Default.css_file)
+        css_provider.load_from_file(css_file)
+
+        Gtk.StyleContext.add_provider_for_display(
+            Gdk.Display.get_default(),
+            css_provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
     def on_activate(self, app):
         builder = Gtk.Builder()
-        builder.add_from_file('yggui/ui/ui.ui')
+        builder.add_from_file(Default.ui_file)
 
         self.win = builder.get_object('main_window')
         self.win.set_application(self)

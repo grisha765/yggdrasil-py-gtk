@@ -70,11 +70,15 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="peers_box">
+                    <property name="halign">center</property>
+                    <property name="margin-bottom">10</property>
+                    <property name="margin-top">10</property>
                     <property name="orientation">vertical</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkBox">
+                    <property name="margin-bottom">10</property>
                     <child>
                       <object class="GtkButton" id="save_settings_button">
                         <property name="halign">center</property>

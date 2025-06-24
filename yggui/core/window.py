@@ -22,6 +22,7 @@ class MyApp(Adw.Application):
         self.GCheckButton = Gtk.CheckButton
         self.GOrientation = Gtk.Orientation
 
+        self.process = None
         self.peers = []
         self.current_private_key = ""
         self.default_private_key = ""

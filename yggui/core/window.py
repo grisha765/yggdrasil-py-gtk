@@ -1,10 +1,11 @@
 import gi
+import signal
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
-from yggui.func.ygg import switch_switched
+from yggui.func.ygg import switch_switched, stop_yggdrasil
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
 from yggui.func.private_key import load_private_key
@@ -15,7 +16,11 @@ from yggui.core.common import Default
 class MyApp(Adw.Application):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         self.connect("activate", self.on_activate)
+        self.connect("shutdown", self.on_shutdown)
+
+        signal.signal(signal.SIGINT, lambda _sig, _frm: self._on_sigint())
 
         self.GBox = Gtk.Box
         self.GEntry = Gtk.Entry
@@ -34,6 +39,7 @@ class MyApp(Adw.Application):
             css_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
+
 
     def on_activate(self, _app):
         builder = Gtk.Builder()
@@ -74,17 +80,27 @@ class MyApp(Adw.Application):
         load_private_key(self)
 
         builder.get_object("main_button").connect("clicked", self.switch_to_main)
-        builder.get_object("settings_button").connect(
-            "clicked",
-            self.switch_to_settings,
-        )
+        builder.get_object("settings_button").connect("clicked", self.switch_to_settings)
 
         self.stack.set_visible_child(self.main_box)
 
 
+    def on_shutdown(self, _app):
+        if self.process is not None:
+            stop_yggdrasil(self.process)
+            self.process = None
+
+
+    def _on_sigint(self):
+        if self.process is not None:
+            stop_yggdrasil(self.process)
+            self.process = None
+        self.quit()
+
+
     def _set_ip_labels(self, address: str, subnet: str) -> None:
-        self.address_label.set_label(f"IPv6 Address:  {address}")
-        self.subnet_label.set_label(f"IPv6 Subnet:   {subnet}")
+        self.address_label.set_label(f"IPv6 Address:  {address}")
+        self.subnet_label.set_label(f"IPv6 Subnet:   {subnet}")
 
 
     def switch_to_main(self, _button):

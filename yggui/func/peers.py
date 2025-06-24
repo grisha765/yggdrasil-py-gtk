@@ -1,94 +1,93 @@
 import json
+from gi.repository import Gtk  # type: ignore
+
 from yggui.core.common import Default
 
-def add_peer(app, button):
-    row = app.GBox(orientation=app.GOrientation.HORIZONTAL)
-    entry = app.GEntry()
-    checkbox = app.GCheckButton()
-    checkbox.set_active(True)
-    row.append(entry)
-    row.append(checkbox)
-    app.peers_box.append(row)
-    checkbox.connect("toggled", lambda cb: on_peer_toggled(app, cb, entry))
 
-def on_peer_toggled(app, checkbox, entry):
-    text = entry.get_text().strip()
-    if checkbox.get_active():
-        if text and text not in app.peers:
-            app.peers.append(text)
-    else:
-        if text in app.peers:
-            app.peers.remove(text)
+def _read_config():
+    if Default.config_path.exists():
+        try:
+            with open(Default.config_path, "r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except Exception:
+            return {}
+    return {}
+
+
+def _write_config(cfg):
+    with open(Default.config_path, "w", encoding="utf-8") as handle:
+        json.dump(cfg, handle, indent=2)
+
+
+def _save_peers_to_disk(app):
+    cfg = _read_config()
+    cfg["Peers"] = app.peers
+    _write_config(cfg)
+
 
 def load_config(app):
-    if Default.config_path.exists():
-        with open(Default.config_path, "r") as f:
-            try:
-                config = json.load(f)
-            except:
-                config = {}
-        app.peers = config.get("Peers", [])
-    else:
-        app.peers = []
-    refresh_peers_box(app)
+    cfg = _read_config()
+    app.peers = cfg.get("Peers", [])
+    _rebuild_peers_box(app)
 
-def refresh_peers_box(app):
+
+def _rebuild_peers_box(app):
     child = app.peers_box.get_first_child()
     while child:
-        next_child = child.get_next_sibling()
+        nxt = child.get_next_sibling()
         app.peers_box.remove(child)
-        child = next_child
+        child = nxt
+
     for peer in app.peers:
-        row = app.GBox(orientation=app.GOrientation.HORIZONTAL)
-        entry = app.GEntry()
-        entry.set_text(peer)
-        checkbox = app.GCheckButton()
-        checkbox.set_active(True)
-        row.append(entry)
-        row.append(checkbox)
+        row = app.GBox(orientation=app.GOrientation.HORIZONTAL, spacing=12)
+        row.set_hexpand(True)
+
+        label = Gtk.Label(label=peer)
+        label.set_xalign(0)
+        label.set_hexpand(True)
+        label.set_margin_start(6)
+
+        minus = Gtk.Button(label="–")
+        minus.set_margin_end(6)
+
+        row.append(label)
+        row.append(minus)
+
+        minus.connect("clicked", lambda _btn, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
-        checkbox.connect("toggled", lambda cb: on_peer_toggled(app, cb, entry))
 
-def save_config(app, button):
-    if Default.config_path.exists():
-        with open(Default.config_path, "r") as f:
-            try:
-                config = json.load(f)
-            except:
-                config = {}
-    else:
-        config = {}
+    add_row = app.GBox(orientation=app.GOrientation.HORIZONTAL, spacing=12)
+    add_row.set_hexpand(True)
 
-    updated_peers = []
-    row = app.peers_box.get_first_child()
-    while row:
-        next_row = row.get_next_sibling()
-        entry = None
-        checkbox = None
+    entry = app.GEntry()
+    entry.set_hexpand(True)
+    entry.set_margin_start(6)
 
-        subchild = row.get_first_child()
-        while subchild:
-            next_subchild = subchild.get_next_sibling()
-            if isinstance(subchild, app.GEntry):
-                entry = subchild
-            if isinstance(subchild, app.GCheckButton):
-                checkbox = subchild
-            subchild = next_subchild
+    plus = Gtk.Button(label="+")
+    plus.set_margin_end(6)
 
-        if entry and checkbox:
-            text = entry.get_text().strip()
-            if checkbox.get_active() and text:
-                updated_peers.append(text)
+    add_row.append(entry)
+    add_row.append(plus)
 
-        row = next_row
+    plus.connect("clicked", lambda _btn: _add_peer(app, entry))
+    app.peers_box.append(add_row)
 
-    app.peers = updated_peers
-    config["Peers"] = app.peers
 
-    with open(Default.config_path, "w") as f:
-        json.dump(config, f, indent=2)
+def _add_peer(app, entry):
+    text = entry.get_text().strip()
+    if not text or text in app.peers:
+        return
+    app.peers.append(text)
+    _save_peers_to_disk(app)
+    _rebuild_peers_box(app)
 
-    load_config(app)
+
+def _remove_peer(app, peer):
+    if peer in app.peers:
+        app.peers.remove(peer)
+        _save_peers_to_disk(app)
+        _rebuild_peers_box(app)
+
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")

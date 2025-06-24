@@ -1,7 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!-- Created with Cambalache 0.94.1 -->
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-name ui.ui -->
   <requires lib="gtk" version="4.12"/>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="accessible-role">meter</property>
@@ -10,16 +8,10 @@
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
+
+        <!-- Header: only page switch buttons -->
         <child>
           <object class="GtkHeaderBar" id="header">
-            <child>
-              <object class="GtkButton" id="add_peer_button">
-                <property name="halign">start</property>
-                <property name="hexpand">True</property>
-                <property name="label">+</property>
-                <property name="visible">False</property>
-              </object>
-            </child>
             <child type="title">
               <object class="GtkBox">
                 <child>
@@ -36,8 +28,12 @@
             </child>
           </object>
         </child>
+
+        <!-- Stack with two pages -->
         <child>
           <object class="GtkStack" id="stack">
+
+            <!-- Main page -->
             <child>
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
@@ -45,54 +41,42 @@
                   <object class="GtkBox" id="switch_box">
                     <property name="halign">center</property>
                     <property name="margin-top">10</property>
-                    <property name="name">switch_box</property>
                     <child>
-                      <object class="GtkBox">
-                        <child>
-                          <object class="GtkLabel" id="switch_label">
-                            <property name="label">Enable Yggdrasil</property>
-                            <property name="margin-end">10</property>
-                          </object>
-                        </child>
+                      <object class="GtkLabel" id="switch_label">
+                        <property name="label">Enable Yggdrasil</property>
+                        <property name="margin-end">10</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="switch1">
-                        <property name="tooltip-text">w</property>
-                      </object>
+                      <object class="GtkSwitch" id="switch1"/>
                     </child>
                   </object>
                 </child>
               </object>
             </child>
+
+            <!-- Settings page -->
             <child>
               <object class="GtkBox" id="settings">
                 <property name="orientation">vertical</property>
                 <child>
+                  <!-- Populated at runtime by peers.py -->
                   <object class="GtkBox" id="peers_box">
-                    <property name="halign">center</property>
-                    <property name="margin-bottom">10</property>
-                    <property name="margin-top">10</property>
                     <property name="orientation">vertical</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox">
+                    <property name="halign">center</property>
+                    <property name="margin-top">10</property>
                     <property name="margin-bottom">10</property>
-                    <child>
-                      <object class="GtkButton" id="save_settings_button">
-                        <property name="halign">center</property>
-                        <property name="hexpand">True</property>
-                        <property name="label">Save</property>
-                      </object>
-                    </child>
+                    <property name="spacing">6</property>
                   </object>
                 </child>
               </object>
             </child>
+
           </object>
         </child>
+
       </object>
     </child>
   </object>
 </interface>
+

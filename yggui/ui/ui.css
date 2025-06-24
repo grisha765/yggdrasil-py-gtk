@@ -9,3 +9,9 @@
     background: @theme_selected_bg_color;
     border-color: @theme_selected_fg_color;
 }
+
+.info-line {
+    margin-top: 10px;
+    font-weight: bold;
+}
+

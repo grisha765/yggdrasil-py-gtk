@@ -55,6 +55,11 @@ class MyApp(Adw.Application):
         self.switch = builder.get_object("switch1")
         self.switch.set_active(False)
 
+        self.address_label = builder.get_object("address_label")
+        self.subnet_label = builder.get_object("subnet_label")
+
+        self._set_ip_labels("-", "-")
+
         if Default.ygg_path is None:
             self.switch.set_sensitive(False)
             self.label.set_label("Yggdrasil not found")
@@ -75,6 +80,12 @@ class MyApp(Adw.Application):
         )
 
         self.stack.set_visible_child(self.main_box)
+
+
+    def _set_ip_labels(self, address: str, subnet: str) -> None:
+        self.address_label.set_label(f"IPv6 Address:  {address}")
+        self.subnet_label.set_label(f"IPv6 Subnet:   {subnet}")
+
 
     def switch_to_main(self, _button):
         self.stack.set_visible_child(self.main_box)

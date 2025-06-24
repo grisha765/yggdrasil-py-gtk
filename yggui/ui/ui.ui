@@ -37,6 +37,7 @@
             <child>
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
+
                 <child>
                   <object class="GtkBox" id="switch_box">
                     <property name="halign">center</property>
@@ -52,6 +53,24 @@
                     </child>
                   </object>
                 </child>
+
+                <!-- New information lines -->
+                <child>
+                  <object class="GtkLabel" id="address_label">
+                    <property name="halign">center</property>
+                    <property name="css-classes">info-line</property>
+                    <property name="label">IPv6 Address:  –</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="subnet_label">
+                    <property name="halign">center</property>
+                    <property name="css-classes">info-line</property>
+                    <property name="label">IPv6 Subnet:   –</property>
+                    <property name="margin-bottom">10</property>
+                  </object>
+                </child>
               </object>
             </child>
 
@@ -64,27 +83,27 @@
                     <child>
                       <object class="AdwPreferencesGroup">
                         <child>
-                        <object class="AdwActionRow" id="private_key_row">
-                          <property name="title">PrivateKey</property>
-                          <child type="suffix">
-                            <object class="GtkEntry" id="private_key_entry">
-                              <property name="hexpand">True</property>
-                              <property name="editable">False</property>
-                            </object>
-                          </child>
+                          <object class="AdwActionRow" id="private_key_row">
+                            <property name="title">PrivateKey</property>
+                            <child type="suffix">
+                              <object class="GtkEntry" id="private_key_entry">
+                                <property name="hexpand">True</property>
+                                <property name="editable">False</property>
+                              </object>
+                            </child>
 
-                          <child type="suffix">
-                            <object class="GtkButton" id="edit_private_key_button">
-                              <property name="icon-name">document-edit-symbolic</property>
-                            </object>
-                          </child>
+                            <child type="suffix">
+                              <object class="GtkButton" id="edit_private_key_button">
+                                <property name="icon-name">document-edit-symbolic</property>
+                              </object>
+                            </child>
 
-                          <child type="suffix">
-                            <object class="GtkButton" id="reset_private_key_button">
-                              <property name="icon-name">view-refresh-symbolic</property>
-                            </object>
-                          </child>
-                        </object>
+                            <child type="suffix">
+                              <object class="GtkButton" id="reset_private_key_button">
+                                <property name="icon-name">view-refresh-symbolic</property>
+                              </object>
+                            </child>
+                          </object>
                         </child>
                         <child>
                           <object class="AdwExpanderRow" id="peers_card">

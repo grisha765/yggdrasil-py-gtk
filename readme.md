@@ -24,7 +24,12 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
         ```
     - Put the binary:
         ```bash
-        mv ./yggdrasil $HOME/.local/bin/
+        mv ./yggdrasil $HOME/.local/bin/ && \
+        mv ./yggdrasilctl $HOME/.local/bin/
+        ```
+    - Permission to create tun from user:
+        ```bash
+        sudo setcap CAP_NET_ADMIN=ep ~/.local/bin/yggdrasil
         ```
 
 ### Deploy

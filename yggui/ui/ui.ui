@@ -15,13 +15,17 @@
         <child>
           <object class="GtkHeaderBar" id="header">
             <child type="title">
-              <object class="GtkBox">
+              <object class="GtkBox" id="nav_box">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">12</property>
+
                 <child>
                   <object class="GtkButton" id="main_button">
                     <property name="label">Main</property>
                   </object>
                 </child>
-                <child type="end">
+
+                <child>
                   <object class="GtkButton" id="settings_button">
                     <property name="label">Settings</property>
                   </object>
@@ -54,7 +58,6 @@
                   </object>
                 </child>
 
-                <!-- New information lines -->
                 <child>
                   <object class="GtkLabel" id="address_label">
                     <property name="halign">center</property>
@@ -130,7 +133,6 @@
 
           </object>
         </child>
-
       </object>
     </child>
   </object>

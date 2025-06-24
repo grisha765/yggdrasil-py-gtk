@@ -3,6 +3,7 @@ import signal
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
+
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
 from yggui.func.ygg import switch_switched, stop_yggdrasil
@@ -52,10 +53,18 @@ class MyApp(Adw.Application):
         self.main_box = builder.get_object("main")
         self.settings_box = builder.get_object("settings")
         self.stack = builder.get_object("stack")
+
+        self.main_button = builder.get_object("main_button")
+        self.settings_button = builder.get_object("settings_button")
+
         self.peers_box = builder.get_object("peers_box")
         self.private_key_entry = builder.get_object("private_key_entry")
-        self.edit_private_key_button = builder.get_object("edit_private_key_button")
-        self.reset_private_key_button = builder.get_object("reset_private_key_button")
+        self.edit_private_key_button = builder.get_object(
+            "edit_private_key_button"
+        )
+        self.reset_private_key_button = builder.get_object(
+            "reset_private_key_button"
+        )
 
         self.label = builder.get_object("switch_label")
         self.switch = builder.get_object("switch1")
@@ -63,7 +72,6 @@ class MyApp(Adw.Application):
 
         self.address_label = builder.get_object("address_label")
         self.subnet_label = builder.get_object("subnet_label")
-
         self._set_ip_labels("-", "-")
 
         if Default.ygg_path is None:
@@ -79,17 +87,16 @@ class MyApp(Adw.Application):
         load_config(self)
         load_private_key(self)
 
-        builder.get_object("main_button").connect("clicked", self.switch_to_main)
-        builder.get_object("settings_button").connect("clicked", self.switch_to_settings)
+        self.main_button.connect("clicked", self.switch_to_main)
+        self.settings_button.connect("clicked", self.switch_to_settings)
 
         self.stack.set_visible_child(self.main_box)
-
+        self._update_nav_buttons(self.main_button)
 
     def on_shutdown(self, _app):
         if self.process is not None:
             stop_yggdrasil(self.process)
             self.process = None
-
 
     def _on_sigint(self):
         if self.process is not None:
@@ -102,12 +109,20 @@ class MyApp(Adw.Application):
         self.address_label.set_label(f"IPv6 Address:  {address}")
         self.subnet_label.set_label(f"IPv6 Subnet:   {subnet}")
 
+    def _update_nav_buttons(self, active_btn: Gtk.Button) -> None:
+        for btn in (self.main_button, self.settings_button):
+            btn.remove_css_class("suggested-action")
+        active_btn.add_css_class("suggested-action")
+
 
     def switch_to_main(self, _button):
         self.stack.set_visible_child(self.main_box)
+        self._update_nav_buttons(self.main_button)
+
 
     def switch_to_settings(self, _button):
         self.stack.set_visible_child(self.settings_box)
+        self._update_nav_buttons(self.settings_button)
 
 
 if __name__ == "__main__":

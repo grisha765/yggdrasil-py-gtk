@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.12"/>
+  <requires lib="adw" version="1.0"/>
+
   <object class="GtkApplicationWindow" id="main_window">
     <property name="accessible-role">meter</property>
     <property name="decorated">False</property>
     <property name="title"> </property>
+
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
 
-        <!-- Header: only page switch buttons -->
         <child>
           <object class="GtkHeaderBar" id="header">
             <child type="title">
@@ -29,11 +31,9 @@
           </object>
         </child>
 
-        <!-- Stack with two pages -->
         <child>
           <object class="GtkStack" id="stack">
 
-            <!-- Main page -->
             <child>
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
@@ -55,18 +55,32 @@
               </object>
             </child>
 
-            <!-- Settings page -->
             <child>
               <object class="GtkBox" id="settings">
                 <property name="orientation">vertical</property>
+
                 <child>
-                  <!-- Populated at runtime by peers.py -->
-                  <object class="GtkBox" id="peers_box">
-                    <property name="orientation">vertical</property>
-                    <property name="halign">center</property>
-                    <property name="margin-top">10</property>
-                    <property name="margin-bottom">10</property>
-                    <property name="spacing">6</property>
+                  <object class="AdwClamp">
+                    <child>
+                      <object class="AdwPreferencesGroup">
+                        <child>
+                          <object class="AdwExpanderRow" id="peers_card">
+                            <property name="title">Peers</property>
+                            <property name="expanded">False</property>
+
+                            <child>
+                              <object class="GtkBox" id="peers_box">
+                                <property name="orientation">vertical</property>
+                                <property name="halign">center</property>
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                                <property name="spacing">6</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>

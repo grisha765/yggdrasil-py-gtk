@@ -7,6 +7,7 @@ from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 from yggui.func.ygg import switch_switched
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
+from yggui.func.private_key import load_private_key
 
 from yggui.core.common import Default
 
@@ -22,6 +23,8 @@ class MyApp(Adw.Application):
         self.GOrientation = Gtk.Orientation
 
         self.peers = []
+        self.current_private_key = ""
+        self.default_private_key = ""
 
         css_provider = Gtk.CssProvider()
         css_provider.load_from_file(Gio.File.new_for_path(Default.css_file))
@@ -43,6 +46,9 @@ class MyApp(Adw.Application):
         self.settings_box = builder.get_object("settings")
         self.stack = builder.get_object("stack")
         self.peers_box = builder.get_object("peers_box")
+        self.private_key_entry = builder.get_object("private_key_entry")
+        self.edit_private_key_button = builder.get_object("edit_private_key_button")
+        self.reset_private_key_button = builder.get_object("reset_private_key_button")
 
         self.label = builder.get_object("switch_label")
         self.switch = builder.get_object("switch1")
@@ -59,6 +65,7 @@ class MyApp(Adw.Application):
             )
 
         load_config(self)
+        load_private_key(self)
 
         builder.get_object("main_button").connect("clicked", self.switch_to_main)
         builder.get_object("settings_button").connect(

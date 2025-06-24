@@ -17,7 +17,7 @@ def print_output(process):
 def _get_self_info():
     try:
         result = subprocess.run(
-            ["yggdrasilctl", "-json", "-endpoint=unix:///tmp/yggdrasil.sock", "getSelf"],
+            ["yggdrasilctl", "-json", f"-endpoint=unix://{Default.admin_socket}", "getSelf"],
             capture_output=True,
             text=True,
             check=True

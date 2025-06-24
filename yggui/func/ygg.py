@@ -16,8 +16,17 @@ def print_output(process):
 
 def _get_self_info():
     try:
+        yggctl = Default.yggctl_path
+        if yggctl is None:
+            return "Yggdrasilctl not found", "Yggdrasilctl not found"
+        command: list[str] = [
+                yggctl,
+                "-json",
+                f"-endpoint=unix://{Default.admin_socket}",
+                "getSelf"
+            ]
         result = subprocess.run(
-            ["yggdrasilctl", "-json", f"-endpoint=unix://{Default.admin_socket}", "getSelf"],
+            command,
             capture_output=True,
             text=True,
             check=True

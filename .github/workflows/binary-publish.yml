@@ -1,0 +1,56 @@
+name: Build and Push binary
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'readme.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/fedora:latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: dnf install -y make pkg-config python3 python3-pip patchelf gcc python3-devel gobject-introspection-devel python3-gobject
+
+      - name: Install nuitka
+        run: python3 -m pip install --upgrade nuitka
+
+      - name: Build pkg
+        run: make
+
+      - name: Get short commit SHA and commit count
+        id: vars
+        run: | 
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Create Pre-release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "build-${{ env.COMMIT_NUMBER }}-${{ env.SHORT_SHA }}"
+          release_name: "Build from commit ${{ env.SHORT_SHA }}"
+          prerelease: true
+          draft: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/yggui.bin
+          asset_name: yggui-x86_64
+          asset_content_type: application/octet-stream

@@ -15,11 +15,13 @@ jobs:
       image: docker.io/fedora:latest
 
     steps:
+      - name: Install dependencies
+        run: dnf install -y git make pkg-config python3 python3-pip patchelf gcc python3-devel gobject-introspection-devel python3-gobject
+
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: dnf install -y make pkg-config python3 python3-pip patchelf gcc python3-devel gobject-introspection-devel python3-gobject
+        with:
+          fetch-depth: 0
 
       - name: Install nuitka
         run: python3 -m pip install --upgrade nuitka
@@ -27,30 +29,26 @@ jobs:
       - name: Build pkg
         run: make
 
+      - name: Tell Git the workspace is safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Get short commit SHA and commit count
         id: vars
         run: | 
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "COMMIT_NUMBER=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "commit_number=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Create Pre-release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: "build-${{ env.COMMIT_NUMBER }}-${{ env.SHORT_SHA }}"
-          release_name: "Build from commit ${{ env.SHORT_SHA }}"
-          prerelease: true
-          draft: false
+      - name: Rename binary
+        run: mv ./build/yggui.bin ./build/yggui-x86_64
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - name: Create Pre-release
+        uses: softprops/action-gh-release@v2.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build/yggui.bin
-          asset_name: yggui-x86_64
-          asset_content_type: application/octet-stream
+          tag_name: build-${{ steps.vars.outputs.commit_number }}-${{ steps.vars.outputs.short_sha }}
+          name: Build from commit ${{ steps.vars.outputs.short_sha }}
+          prerelease: true
+          generate_release_notes: true
+          files: ./build/yggui-x86_64

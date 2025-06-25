@@ -5,9 +5,6 @@ _INACTIVE_KEY_FIELD = "PrivateKeyInactive"
 
 
 def _read_config():
-    """
-    Load the whole JSON config or return an empty dict on error.
-    """
     if Default.config_path.exists():
         try:
             with open(Default.config_path, "r", encoding="utf-8") as handle:
@@ -75,9 +72,6 @@ def _toggle_edit(app):
 
 
 def _reset(app):
-    """
-    Revert to the factory‑generated PrivateKey.
-    """
     default_key = app.default_private_key
     if not default_key:
         return
@@ -92,4 +86,7 @@ def _reset(app):
     entry.set_editable(False)
     app.edit_private_key_button.set_icon_name("document-edit-symbolic")
     app.reset_private_key_button.set_sensitive(False)
+
+if __name__ == "__main__":
+    raise RuntimeError("This module should be run only via main.py")
 

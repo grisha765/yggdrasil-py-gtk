@@ -42,15 +42,16 @@ def _rebuild_peers_box(app):
         row = app.GBox(orientation=app.GOrientation.HORIZONTAL, spacing=12)
         row.set_hexpand(True)
 
-        label = Gtk.Label(label=peer)
-        label.set_xalign(0)
-        label.set_hexpand(True)
-        label.set_margin_start(6)
+        entry_display = app.GEntry()
+        entry_display.set_text(peer)
+        entry_display.set_editable(False)
+        entry_display.set_hexpand(True)
+        entry_display.set_margin_start(6)
 
         minus = Gtk.Button(label="–")
         minus.set_margin_end(6)
 
-        row.append(label)
+        row.append(entry_display)
         row.append(minus)
 
         minus.connect("clicked", lambda _btn, p=peer: _remove_peer(app, p))

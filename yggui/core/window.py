@@ -34,7 +34,7 @@ class MyApp(Adw.Application):
         self.default_private_key = ""
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_file(Gio.File.new_for_path(Default.css_file))
+        css_provider.load_from_file(Gio.File.new_for_path(str(Default.css_file)))
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(),
             css_provider,
@@ -44,7 +44,7 @@ class MyApp(Adw.Application):
 
     def on_activate(self, _app):
         builder = Gtk.Builder()
-        builder.add_from_file(Default.ui_file)
+        builder.add_from_file(str(Default.ui_file))
 
         self.win = builder.get_object("main_window")
         self.win.set_application(self)

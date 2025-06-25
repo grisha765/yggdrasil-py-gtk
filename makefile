@@ -8,6 +8,7 @@ NUITKA_OPTS ?= \
 	--onefile \
 	--output-dir=$(OUTDIR) \
 	--include-package=$(MODULE) \
+	--include-package-data=yggui.ui \
 	--enable-plugin=gi \
 	--nofollow-import-to=tkinter,unittest,turtle,pdb,doctest \
 	--noinclude-default-mode=error \

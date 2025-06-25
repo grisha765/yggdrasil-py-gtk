@@ -20,7 +20,7 @@ def _ensure_admin_socket_is_set() -> None:
 
 def create_config():
     if not Default.config_path.exists():
-        print(f"The {Default.config_file} file was not found. Create it...")
+        print(f"The {str(Default.config_path)} file was not found. Create it...")
         with open(str(Default.config_path), "w") as f:
             cmd = [Default.ygg_path, "-genconf", "-json"]
             subprocess.run(cmd, stdout=f, check=True)

@@ -1,13 +1,16 @@
 import json
+import subprocess
 from yggui.core.common import Default
-
-_INACTIVE_KEY_FIELD = "PrivateKeyInactive"
 
 
 def _read_config():
     if Default.config_path.exists():
         try:
-            with open(Default.config_path, "r", encoding="utf-8") as handle:
+            with open(
+                Default.config_path,
+                "r",
+                encoding="utf-8"
+            ) as handle:
                 return json.load(handle)
         except Exception:
             return {}
@@ -15,34 +18,45 @@ def _read_config():
 
 
 def _write_config(cfg):
-    with open(Default.config_path, "w", encoding="utf-8") as handle:
+    with open(
+        Default.config_path,
+        "w",
+        encoding="utf-8"
+    ) as handle:
         json.dump(cfg, handle, indent=2)
 
 
-def load_private_key(app):
+def _regenerate(app):
+    try:
+        cmd = [
+            Default.ygg_path,
+            "-genconf",
+            "-json"
+        ]
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            check=True,
+            text=True,
+        )
+        generated = json.loads(result.stdout)
+        new_key = generated.get("PrivateKey", "").strip()
+    except Exception:
+        return
+
+    if not new_key:
+        return
+
     cfg = _read_config()
+    cfg["PrivateKey"] = new_key
+    _write_config(cfg)
 
-    current_key = cfg.get("PrivateKey", "")
-    inactive_key = cfg.get(_INACTIVE_KEY_FIELD)
-
-    if inactive_key is None and current_key:
-        cfg[_INACTIVE_KEY_FIELD] = current_key
-        _write_config(cfg)
-        inactive_key = current_key
-
-    app.default_private_key = inactive_key or ""
-    app.current_private_key = current_key
+    app.current_private_key = new_key
 
     entry = app.private_key_entry
-    entry.set_text(current_key)
+    entry.set_text(new_key)
     entry.set_editable(False)
-
-    edit_btn = app.edit_private_key_button
-    reset_btn = app.reset_private_key_button
-
-    edit_btn.connect("clicked", lambda _b: _toggle_edit(app))
-    reset_btn.connect("clicked", lambda _b: _reset(app))
-    reset_btn.set_sensitive(current_key != inactive_key)
+    app.edit_private_key_button.set_icon_name("document-edit-symbolic")
 
 
 def _toggle_edit(app):
@@ -66,26 +80,25 @@ def _toggle_edit(app):
     app.current_private_key = new_key
     entry.set_editable(False)
     app.edit_private_key_button.set_icon_name("document-edit-symbolic")
-    app.reset_private_key_button.set_sensitive(
-        new_key != app.default_private_key
-    )
 
 
-def _reset(app):
-    default_key = app.default_private_key
-    if not default_key:
-        return
+def load_private_key(app):
+    cfg = _read_config()
+    current_key = cfg.get("PrivateKey", "")
+
+    app.current_private_key = current_key
+    app.default_private_key = current_key
 
     entry = app.private_key_entry
-    cfg = _read_config()
-    cfg["PrivateKey"] = default_key
-    _write_config(cfg)
-
-    app.current_private_key = default_key
-    entry.set_text(default_key)
+    entry.set_text(current_key)
     entry.set_editable(False)
-    app.edit_private_key_button.set_icon_name("document-edit-symbolic")
-    app.reset_private_key_button.set_sensitive(False)
+
+    edit_btn = app.edit_private_key_button
+    regen_btn = app.reset_private_key_button
+
+    edit_btn.connect("clicked", lambda _b: _toggle_edit(app))
+    regen_btn.connect("clicked", lambda _b: _regenerate(app))
+
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")

@@ -43,6 +43,7 @@
             <child>
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
+                <property name="margin-top">12</property>
 
                 <child>
                   <object class="AdwClamp" id="main_clamp">
@@ -84,6 +85,7 @@
             <child>
               <object class="GtkBox" id="settings">
                 <property name="orientation">vertical</property>
+                <property name="margin-top">12</property>
 
                 <child>
                   <object class="AdwClamp" id="settings_clamp">
@@ -126,6 +128,7 @@
                                 <property name="halign">center</property>
                                 <property name="margin-top">6</property>
                                 <property name="margin-bottom">6</property>
+                                <property name="halign">fill</property>
                                 <property name="spacing">6</property>
                               </object>
                             </child>

@@ -9,11 +9,10 @@
     <property name="title"> </property>
 
     <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
+      <object class="AdwToolbarView" id="toolbar_view">
 
         <!-- Header/navigation -->
-        <child>
+        <child type="top">
           <object class="GtkHeaderBar" id="header">
             <child type="title">
               <object class="GtkBox" id="nav_box">
@@ -37,7 +36,7 @@
         </child>
 
         <!-- Stacked pages -->
-        <child>
+        <property name="content">
           <object class="GtkStack" id="stack">
 
             <!-- MAIN PAGE -->
@@ -61,7 +60,7 @@
                         <!-- IPv6 address -->
                         <child>
                           <object class="AdwActionRow" id="address_row">
-                            <property name="title">IPv6 Address</property>
+                            <property name="title">IPv6 Address</property>
                             <property name="subtitle">–</property>
                           </object>
                         </child>
@@ -69,7 +68,7 @@
                         <!-- IPv6 subnet -->
                         <child>
                           <object class="AdwActionRow" id="subnet_row">
-                            <property name="title">IPv6 Subnet</property>
+                            <property name="title">IPv6 Subnet</property>
                             <property name="subtitle">–</property>
                           </object>
                         </child>
@@ -87,7 +86,7 @@
                 <property name="orientation">vertical</property>
 
                 <child>
-                  <object class="AdwClamp">
+                  <object class="AdwClamp" id="settings_clamp">
                     <child>
                       <object class="AdwPreferencesGroup">
 
@@ -141,7 +140,8 @@
             </child>
 
           </object>
-        </child>
+        </property>
+
       </object>
     </child>
   </object>

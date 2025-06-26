@@ -1,17 +1,11 @@
 import json
-import re
-import subprocess
 import time
 from threading import Thread
 
 from gi.repository import GLib, Gtk  # type: ignore
 
 from yggui.core.common import Default
-
-
-def print_output(process):
-    for line in process.stdout:
-        print(line.decode("utf-8").strip())
+from yggui.func.pkexec_shell import PkexecShell
 
 
 def _show_error_dialog(app, message: str) -> None:
@@ -34,96 +28,65 @@ def _on_process_error(app, message: str) -> bool:
         app.switch.set_active(False)
 
     app.switch_row.set_subtitle("Stopped")
-    app.process = None
+    app.ygg_pid = None
     app._set_ip_labels("-", "-")
     return False
 
 
-def _watch_process(app, process):
-    return_code = process.wait()
-    if return_code == 0:
-        return
-    if not app.switch.get_active():
-        return
-
-    stderr_data = process.stderr.read().decode("utf-8", errors="replace").strip()
-    if not stderr_data:
-        stderr_data = f"Yggdrasil exited with code {return_code}"
-    GLib.idle_add(_on_process_error, app, stderr_data)
-
-
-def _handle_start_error(app, exc: Exception) -> None:
-    GLib.idle_add(_on_process_error, app, f"Failed to start Yggdrasil: {exc}")
-
-
-def _get_self_info():
+def _get_self_info() -> tuple[str | None, str | None]:
+    cmd = (
+        f"{Default.yggctl_path} -json "
+        f"-endpoint=unix://{Default.admin_socket} getSelf"
+    )
     try:
-        yggctl = Default.yggctl_path
-        if yggctl is None:
-            return "Yggdrasilctl not found", "Yggdrasilctl not found"
-
-        command = [
-            yggctl,
-            "-json",
-            f"-endpoint=unix://{Default.admin_socket}",
-            "getSelf",
-        ]
-        result = subprocess.run(command, capture_output=True, text=True, check=True)
-        data = json.loads(result.stdout)
+        output = PkexecShell.run_capture(cmd)
+        data = json.loads(output)
         return data.get("address"), data.get("subnet")
     except Exception:
         return None, None
 
 
-def _poll_for_addresses(app):
+def _poll_for_addresses(app) -> None:
     deadline = time.time() + 15
-    while time.time() < deadline and app.process is not None:
+    while time.time() < deadline and app.ygg_pid is not None:
         addr, subnet = _get_self_info()
         if addr and subnet:
             GLib.idle_add(app._set_ip_labels, addr, subnet)
             return
         time.sleep(1)
+
     GLib.idle_add(app._set_ip_labels, "-", "-")
 
 
-def start_yggdrasil():
-    command = [Default.ygg_path, "-useconffile", Default.config_path.resolve()]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    Thread(target=print_output, args=(process,), daemon=True).start()
-    return process
-
-
-def stop_yggdrasil(process):
-    subprocess.run(["kill", "-s", "SIGINT", str(process.pid)], check=False)
-    process.wait()
+def start_yggdrasil() -> int:
+    cmd = (
+        f"{Default.ygg_path} "
+        f"-useconffile {Default.config_path.resolve()}"
+    )
+    return PkexecShell.run_background(cmd)
 
 
-def extract_ips(output):
-    ipv6_regex = r"([0-9a-fA-F:]+(?::[0-9a-fA-F]+)*\b)"
-    return re.findall(ipv6_regex, output)
+def stop_yggdrasil(pid: int) -> None:
+    PkexecShell.run(f"/usr/bin/kill -s SIGINT {pid}")
 
 
-def switch_switched(app, _switch, state: bool):
-    if state and app.process is None:
+def switch_switched(app, _switch, state: bool) -> None:
+    if state and app.ygg_pid is None:
         try:
-            app.process = start_yggdrasil()
+            app.ygg_pid = start_yggdrasil()
         except Exception as exc:
-            _handle_start_error(app, exc)
+            GLib.idle_add(_on_process_error, app, f"Failed to start Yggdrasil: {exc}")
             return
 
         app.switch_row.set_subtitle("Running")
-        print("Yggdrasil started. Waiting for address…")
         app._set_ip_labels("-", "-")
 
         Thread(target=_poll_for_addresses, args=(app,), daemon=True).start()
-        Thread(target=_watch_process, args=(app, app.process), daemon=True).start()
 
-    elif not state and app.process is not None:
-        stop_yggdrasil(app.process)
-        print("Yggdrasil stopped.")
+    elif not state and app.ygg_pid is not None:
+        stop_yggdrasil(app.ygg_pid)
         app.switch_row.set_subtitle("Stopped")
-        app.process = None
+        app.ygg_pid = None
         app._set_ip_labels("-", "-")
 
     print(f"The switch has been switched {'on' if state else 'off'}")
@@ -131,4 +94,3 @@ def switch_switched(app, _switch, state: bool):
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
-

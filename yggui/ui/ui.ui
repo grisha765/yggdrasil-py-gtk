@@ -50,27 +50,39 @@
                     <child>
                       <object class="AdwPreferencesGroup" id="main_group">
 
-                        <!-- Yggdrasil switch row -->
                         <child>
-                          <object class="AdwSwitchRow" id="switch_row">
+                          <object class="AdwExpanderRow" id="ygg_card">
                             <property name="title">Yggdrasil</property>
                             <property name="subtitle">Stopped</property>
-                          </object>
-                        </child>
+                            <property name="expanded">False</property>
 
-                        <!-- IPv6 address row -->
-                        <child>
-                          <object class="AdwActionRow" id="address_row">
-                            <property name="title">IPv6 Address</property>
-                            <property name="subtitle">–</property>
-                          </object>
-                        </child>
+                            <child type="suffix">
+                              <object class="GtkSwitch" id="ygg_switch">
+                                <property name="active">False</property>
+                                <property name="valign">center</property>
+                              </object>
+                            </child>
 
-                        <!-- IPv6 subnet row -->
-                        <child>
-                          <object class="AdwActionRow" id="subnet_row">
-                            <property name="title">IPv6 Subnet</property>
-                            <property name="subtitle">–</property>
+                            <child>
+                              <object class="GtkBox" id="ipv6_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">6</property>
+
+                                <child>
+                                  <object class="AdwActionRow" id="address_row">
+                                    <property name="title">IPv6 Address</property>
+                                    <property name="subtitle">–</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="AdwActionRow" id="subnet_row">
+                                    <property name="title">IPv6 Subnet</property>
+                                    <property name="subtitle">–</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
 

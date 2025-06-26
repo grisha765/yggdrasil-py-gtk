@@ -1,17 +1,18 @@
-import gi
 import signal
+
+import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw, Gdk, Gio, GLib  # type: ignore
 
-from yggui.func.ygg import switch_switched, stop_yggdrasil
+from yggui.core.common import Default
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
-from yggui.func.private_key import load_private_key
 from yggui.func.pkexec_shell import PkexecShell
-from yggui.core.common import Default
+from yggui.func.private_key import load_private_key
+from yggui.func.ygg import switch_switched, stop_yggdrasil
 
 
 class MyApp(Adw.Application):
@@ -20,7 +21,6 @@ class MyApp(Adw.Application):
 
         self.connect("activate", self.on_activate)
         self.connect("shutdown", self.on_shutdown)
-
         signal.signal(signal.SIGINT, lambda _sig, _frm: self._on_sigint())
 
         self.GBox = Gtk.Box
@@ -51,20 +51,24 @@ class MyApp(Adw.Application):
 
         GLib.idle_add(lambda: PkexecShell.run("# privilege escalation") or False)
 
-        self.main_box = builder.get_object("main")
-        self.settings_box = builder.get_object("settings")
         self.stack: Gtk.Stack = builder.get_object("stack")
         self.main_button: Gtk.Button = builder.get_object("main_button")
         self.settings_button: Gtk.Button = builder.get_object("settings_button")
+        self.main_box = builder.get_object("main")
+        self.settings_box = builder.get_object("settings")
 
-        self.switch_row: Adw.SwitchRow = builder.get_object("switch_row")
-        self.switch: Adw.SwitchRow = self.switch_row
+        self.ygg_card: Adw.ExpanderRow = builder.get_object("ygg_card")
+        self.ygg_switch: Gtk.Switch = builder.get_object("ygg_switch")
+
+        self.switch = self.ygg_switch
+        self.switch_row = self.ygg_card
 
         self.address_row: Adw.ActionRow = builder.get_object("address_row")
         self.subnet_row: Adw.ActionRow = builder.get_object("subnet_row")
 
-        self.switch.set_active(False)
+        self.ygg_switch.set_active(False)
         self._set_ip_labels("-", "-")
+        self._expand_ipv6_card(False)
 
         self.peers_box: Gtk.Box = builder.get_object("peers_box")
         self.private_key_entry: Gtk.Entry = builder.get_object("private_key_entry")
@@ -77,21 +81,22 @@ class MyApp(Adw.Application):
         self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
 
         if Default.ygg_path is None:
-            self.switch.set_sensitive(False)
-            self.switch_row.set_subtitle("Yggdrasil not found")
+            self.ygg_switch.set_sensitive(False)
+            self.ygg_card.set_sensitive(False)
+            self.ygg_card.set_subtitle("Yggdrasil not found")
         else:
             create_config()
-            self.switch_row.connect(
+            self.ygg_switch.connect(
                 "notify::active",
-                lambda row, _pspec: switch_switched(self, row, row.get_active()),
+                lambda sw, _pspec: switch_switched(self, sw, sw.get_active()),
             )
+            self.ygg_card.connect("notify::expanded", self._card_expanded)
 
         load_config(self)
         load_private_key(self)
 
         self.main_button.connect("clicked", self.switch_to_main)
         self.settings_button.connect("clicked", self.switch_to_settings)
-
         self.stack.set_visible_child(self.main_box)
         self._update_nav_buttons(self.main_button)
 
@@ -110,6 +115,16 @@ class MyApp(Adw.Application):
     def _set_ip_labels(self, address: str, subnet: str) -> None:
         self.address_row.set_subtitle(address)
         self.subnet_row.set_subtitle(subnet)
+
+    def _expand_ipv6_card(self, expanded: bool) -> None:
+        self.ygg_card.set_expanded(expanded)
+        state = "Running" if expanded else "Stopped"
+        self.ygg_card.set_subtitle(state)
+
+    def _card_expanded(self, _row, _pspec) -> None:
+        expanded = self.ygg_card.get_expanded()
+        if self.ygg_switch.get_active() != expanded:
+            self.ygg_switch.set_active(expanded)
 
     def _update_nav_buttons(self, active_btn: Gtk.Button) -> None:
         for btn in (self.main_button, self.settings_button):

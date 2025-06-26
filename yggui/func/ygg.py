@@ -30,6 +30,7 @@ def _on_process_error(app, message: str) -> bool:
     app.switch_row.set_subtitle("Stopped")
     app.ygg_pid = None
     app._set_ip_labels("-", "-")
+    app._expand_ipv6_card(False)
     return False
 
 
@@ -80,6 +81,7 @@ def switch_switched(app, _switch, state: bool) -> None:
 
         app.switch_row.set_subtitle("Running")
         app._set_ip_labels("-", "-")
+        app._expand_ipv6_card(True)
 
         Thread(target=_poll_for_addresses, args=(app,), daemon=True).start()
 
@@ -88,9 +90,11 @@ def switch_switched(app, _switch, state: bool) -> None:
         app.switch_row.set_subtitle("Stopped")
         app.ygg_pid = None
         app._set_ip_labels("-", "-")
+        app._expand_ipv6_card(False)
 
     print(f"The switch has been switched {'on' if state else 'off'}")
 
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
+

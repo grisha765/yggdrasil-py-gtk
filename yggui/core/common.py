@@ -16,4 +16,17 @@ class Default:
     ui_file = files('yggui.ui').joinpath('ui.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
     admin_socket = '/tmp/yggdrasil.sock'
+    if ygg_path is None:
+        raise FileNotFoundError(
+            "The 'yggdrasil' executable was not found in your PATH. "
+            "Please install Yggdrasil or adjust your PATH environment "
+            "variable accordingly."
+        )
+
+    if yggctl_path is None:
+        raise FileNotFoundError(
+            "The 'yggdrasilctl' executable was not found in your PATH. "
+            "Please install Yggdrasil or adjust your PATH environment "
+            "variable accordingly."
+        )
 

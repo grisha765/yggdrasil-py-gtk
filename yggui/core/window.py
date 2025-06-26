@@ -71,13 +71,9 @@ class MyApp(Adw.Application):
         self._expand_ipv6_card(False)
 
         self.peers_box: Gtk.Box = builder.get_object("peers_box")
-        self.private_key_entry: Gtk.Entry = builder.get_object("private_key_entry")
-        self.edit_private_key_button: Gtk.Button = builder.get_object(
-            "edit_private_key_button"
-        )
-        self.reset_private_key_button: Gtk.Button = builder.get_object(
-            "reset_private_key_button"
-        )
+
+        self.private_key_row: Adw.ActionRow = builder.get_object("private_key_row")
+
         self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
 
         if Default.ygg_path is None:

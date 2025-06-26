@@ -1,16 +1,20 @@
 import json
 import subprocess
+
 from yggui.core.common import Default
+from gi.repository import Gtk, Adw  # type: ignore
+
+
+def _truncate_key(key: str, max_len: int = 48) -> str:
+    if len(key) <= max_len:
+        return key
+    return f"{key[:24]}…{key[-24:]}"
 
 
 def _read_config():
     if Default.config_path.exists():
         try:
-            with open(
-                Default.config_path,
-                "r",
-                encoding="utf-8"
-            ) as handle:
+            with open(Default.config_path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception:
             return {}
@@ -18,27 +22,14 @@ def _read_config():
 
 
 def _write_config(cfg):
-    with open(
-        Default.config_path,
-        "w",
-        encoding="utf-8"
-    ) as handle:
+    with open(Default.config_path, "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
 
 
 def _regenerate(app):
     try:
-        cmd = [
-            Default.ygg_path,
-            "-genconf",
-            "-json"
-        ]
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            check=True,
-            text=True,
-        )
+        cmd = [Default.ygg_path, "-genconf", "-json"]
+        result = subprocess.run(cmd, capture_output=True, check=True, text=True)
         generated = json.loads(result.stdout)
         new_key = generated.get("PrivateKey", "").strip()
     except Exception:
@@ -52,34 +43,41 @@ def _regenerate(app):
     _write_config(cfg)
 
     app.current_private_key = new_key
-
-    entry = app.private_key_entry
-    entry.set_text(new_key)
-    entry.set_editable(False)
-    app.edit_private_key_button.set_icon_name("document-edit-symbolic")
+    app.private_key_row.set_subtitle(_truncate_key(new_key))
 
 
-def _toggle_edit(app):
-    entry = app.private_key_entry
-    editing = entry.get_editable()
+def _open_editor_dialog(app):
+    dialog = Adw.AlertDialog()
+    dialog.set_heading("Edit Private Key")
 
-    if not editing:
-        entry.set_editable(True)
-        app.edit_private_key_button.set_icon_name("object-select")
-        entry.grab_focus()
-        return
+    entry = Gtk.Entry()
+    entry.set_hexpand(True)
+    entry.set_text(app.current_private_key)
+    dialog.set_extra_child(entry)
 
-    new_key = entry.get_text().strip()
-    if not new_key:
-        return
+    dialog.add_response("cancel", "Cancel")
+    dialog.add_response("regen", "Regenerate")
+    dialog.add_response("save", "Save")
+    dialog.set_default_response("save")
 
-    cfg = _read_config()
-    cfg["PrivateKey"] = new_key
-    _write_config(cfg)
+    def _on_response(dlg, response):
+        if response == "cancel":
+            return
+        if response == "regen":
+            _regenerate(app)
+            entry.set_text(app.current_private_key)
+            return
+        if response == "save":
+            new_val = entry.get_text().strip()
+            if new_val:
+                cfg = _read_config()
+                cfg["PrivateKey"] = new_val
+                _write_config(cfg)
+                app.current_private_key = new_val
+                app.private_key_row.set_subtitle(_truncate_key(new_val))
 
-    app.current_private_key = new_key
-    entry.set_editable(False)
-    app.edit_private_key_button.set_icon_name("document-edit-symbolic")
+    dialog.connect("response", _on_response)
+    dialog.present(app.win)
 
 
 def load_private_key(app):
@@ -89,15 +87,8 @@ def load_private_key(app):
     app.current_private_key = current_key
     app.default_private_key = current_key
 
-    entry = app.private_key_entry
-    entry.set_text(current_key)
-    entry.set_editable(False)
-
-    edit_btn = app.edit_private_key_button
-    regen_btn = app.reset_private_key_button
-
-    edit_btn.connect("clicked", lambda _b: _toggle_edit(app))
-    regen_btn.connect("clicked", lambda _b: _regenerate(app))
+    app.private_key_row.set_subtitle(_truncate_key(current_key))
+    app.private_key_row.connect("activated", lambda _r: _open_editor_dialog(app))
 
 
 if __name__ == "__main__":

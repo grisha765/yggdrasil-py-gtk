@@ -104,25 +104,15 @@
                     <child>
                       <object class="AdwPreferencesGroup" id="settings_group">
 
-                        <!-- Private‑key row -->
                         <child>
                           <object class="AdwActionRow" id="private_key_row">
                             <property name="title">PrivateKey</property>
+                            <property name="subtitle">–</property>
+                            <property name="activatable">True</property>
 
                             <child type="suffix">
-                              <object class="GtkEntry" id="private_key_entry">
-                                <property name="hexpand">True</property>
-                                <property name="editable">False</property>
-                              </object>
-                            </child>
-                            <child type="suffix">
-                              <object class="GtkButton" id="edit_private_key_button">
+                              <object class="GtkImage" id="edit_private_key_icon">
                                 <property name="icon-name">document-edit-symbolic</property>
-                              </object>
-                            </child>
-                            <child type="suffix">
-                              <object class="GtkButton" id="reset_private_key_button">
-                                <property name="icon-name">view-refresh-symbolic</property>
                               </object>
                             </child>
                           </object>

@@ -4,12 +4,13 @@ import signal
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
+from gi.repository import Gtk, Adw, Gdk, Gio, GLib  # type: ignore
 
 from yggui.func.ygg import switch_switched, stop_yggdrasil
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
 from yggui.func.private_key import load_private_key
+from yggui.func.pkexec_shell import PkexecShell
 from yggui.core.common import Default
 
 
@@ -27,7 +28,7 @@ class MyApp(Adw.Application):
         self.GCheckButton = Gtk.CheckButton
         self.GOrientation = Gtk.Orientation
 
-        self.process = None
+        self.ygg_pid: int | None = None
         self.peers: list[str] = []
         self.current_private_key = ""
         self.default_private_key = ""
@@ -48,6 +49,8 @@ class MyApp(Adw.Application):
         self.win.set_application(self)
         self.win.present()
 
+        GLib.idle_add(lambda: PkexecShell.run("# privilege escalation") or False)
+
         self.main_box = builder.get_object("main")
         self.settings_box = builder.get_object("settings")
         self.stack: Gtk.Stack = builder.get_object("stack")
@@ -55,7 +58,6 @@ class MyApp(Adw.Application):
         self.settings_button: Gtk.Button = builder.get_object("settings_button")
 
         self.switch_row: Adw.SwitchRow = builder.get_object("switch_row")
-
         self.switch: Adw.SwitchRow = self.switch_row
 
         self.address_row: Adw.ActionRow = builder.get_object("address_row")
@@ -92,18 +94,17 @@ class MyApp(Adw.Application):
         self.stack.set_visible_child(self.main_box)
         self._update_nav_buttons(self.main_button)
 
-
     def on_shutdown(self, _app):
-        if self.process is not None:
-            stop_yggdrasil(self.process)
-            self.process = None
+        if self.ygg_pid is not None:
+            stop_yggdrasil(self.ygg_pid)
+            self.ygg_pid = None
+        PkexecShell.stop()
 
     def _on_sigint(self):
-        if self.process is not None:
-            stop_yggdrasil(self.process)
-            self.process = None
+        if self.ygg_pid is not None:
+            stop_yggdrasil(self.ygg_pid)
+            self.ygg_pid = None
         self.quit()
-
 
     def _set_ip_labels(self, address: str, subnet: str) -> None:
         self.address_row.set_subtitle(address)
@@ -113,7 +114,6 @@ class MyApp(Adw.Application):
         for btn in (self.main_button, self.settings_button):
             btn.remove_css_class("suggested-action")
         active_btn.add_css_class("suggested-action")
-
 
     def switch_to_main(self, _button):
         self.stack.set_visible_child(self.main_box)

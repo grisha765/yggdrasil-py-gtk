@@ -35,7 +35,7 @@
           </object>
         </child>
 
-        <!-- Stacked pages -->
+        <!-- Main content -->
         <property name="content">
           <object class="GtkStack" id="stack">
 
@@ -45,7 +45,7 @@
                 <property name="orientation">vertical</property>
 
                 <child>
-                  <object class="AdwClamp">
+                  <object class="AdwClamp" id="main_clamp">
                     <child>
                       <object class="AdwPreferencesGroup" id="main_group">
 
@@ -57,7 +57,7 @@
                           </object>
                         </child>
 
-                        <!-- IPv6 address -->
+                        <!-- IPv6 address row -->
                         <child>
                           <object class="AdwActionRow" id="address_row">
                             <property name="title">IPv6 Address</property>
@@ -65,7 +65,7 @@
                           </object>
                         </child>
 
-                        <!-- IPv6 subnet -->
+                        <!-- IPv6 subnet row -->
                         <child>
                           <object class="AdwActionRow" id="subnet_row">
                             <property name="title">IPv6 Subnet</property>
@@ -88,7 +88,7 @@
                 <child>
                   <object class="AdwClamp" id="settings_clamp">
                     <child>
-                      <object class="AdwPreferencesGroup">
+                      <object class="AdwPreferencesGroup" id="settings_group">
 
                         <!-- Private‑key row -->
                         <child>
@@ -118,7 +118,7 @@
                         <child>
                           <object class="AdwExpanderRow" id="peers_card">
                             <property name="title">Peers</property>
-                            <property name="expanded">False</property>
+                            <property name="subtitle">No peers configured</property>
 
                             <child>
                               <object class="GtkBox" id="peers_box">

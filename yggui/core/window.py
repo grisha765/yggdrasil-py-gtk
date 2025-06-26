@@ -74,6 +74,7 @@ class MyApp(Adw.Application):
         self.reset_private_key_button: Gtk.Button = builder.get_object(
             "reset_private_key_button"
         )
+        self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
 
         if Default.ygg_path is None:
             self.switch.set_sensitive(False)

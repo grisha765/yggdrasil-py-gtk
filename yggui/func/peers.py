@@ -72,6 +72,12 @@ def _rebuild_peers_box(app):
 
     plus.connect("clicked", lambda _btn: _add_peer(app, entry))
     app.peers_box.append(add_row)
+    count = len(app.peers)
+    if count == 0:
+        app.peers_card.set_subtitle("No peers configured")
+    else:
+        plural = "s" if count != 1 else ""
+        app.peers_card.set_subtitle(f"{count} peer node{plural}")
 
 
 def _add_peer(app, entry):

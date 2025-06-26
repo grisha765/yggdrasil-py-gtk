@@ -13,6 +13,7 @@ class Default:
     ygg_path = shutil.which('yggdrasil')
     yggctl_path = shutil.which('yggdrasilctl')
     config_path = xdg_config('yggui') / 'config.json'
+    pkexec_path = shutil.which("pkexec")
     ui_file = files('yggui.ui').joinpath('ui.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
     admin_socket = '/tmp/yggdrasil.sock'
@@ -27,6 +28,13 @@ class Default:
         raise FileNotFoundError(
             "The 'yggdrasilctl' executable was not found in your PATH. "
             "Please install Yggdrasil or adjust your PATH environment "
+            "variable accordingly."
+        )
+
+    if pkexec_path is None:
+        raise FileNotFoundError(
+            "The 'pkexec' executable was not found in your PATH. "
+            "Please install PolicyKit (polkit) or adjust your PATH environment "
             "variable accordingly."
         )
 

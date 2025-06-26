@@ -33,35 +33,27 @@ def _on_process_error(app, message: str) -> bool:
     if app.switch.get_active():
         app.switch.set_active(False)
 
-    app.label.set_label("Enable Yggdrasil")
+    app.switch_row.set_subtitle("Stopped")
     app.process = None
     app._set_ip_labels("-", "-")
-
     return False
 
 
 def _watch_process(app, process):
     return_code = process.wait()
-
     if return_code == 0:
         return
-
     if not app.switch.get_active():
         return
 
     stderr_data = process.stderr.read().decode("utf-8", errors="replace").strip()
     if not stderr_data:
         stderr_data = f"Yggdrasil exited with code {return_code}"
-
     GLib.idle_add(_on_process_error, app, stderr_data)
 
 
 def _handle_start_error(app, exc: Exception) -> None:
-    GLib.idle_add(
-        _on_process_error,
-        app,
-        f"Failed to start Yggdrasil: {str(exc)}",
-    )
+    GLib.idle_add(_on_process_error, app, f"Failed to start Yggdrasil: {exc}")
 
 
 def _get_self_info():
@@ -70,19 +62,13 @@ def _get_self_info():
         if yggctl is None:
             return "Yggdrasilctl not found", "Yggdrasilctl not found"
 
-        command: list[str] = [
+        command = [
             yggctl,
             "-json",
             f"-endpoint=unix://{Default.admin_socket}",
             "getSelf",
         ]
-
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
         data = json.loads(result.stdout)
         return data.get("address"), data.get("subnet")
     except Exception:
@@ -97,28 +83,14 @@ def _poll_for_addresses(app):
             GLib.idle_add(app._set_ip_labels, addr, subnet)
             return
         time.sleep(1)
-
     GLib.idle_add(app._set_ip_labels, "-", "-")
 
 
 def start_yggdrasil():
-    command = [
-        Default.ygg_path,
-        "-useconffile",
-        Default.config_path.resolve(),
-    ]
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    command = [Default.ygg_path, "-useconffile", Default.config_path.resolve()]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    output_thread = Thread(
-        target=print_output,
-        args=(process,),
-        daemon=True,
-    )
-    output_thread.start()
+    Thread(target=print_output, args=(process,), daemon=True).start()
     return process
 
 
@@ -140,26 +112,17 @@ def switch_switched(app, _switch, state: bool):
             _handle_start_error(app, exc)
             return
 
-        app.label.set_label("Disable Yggdrasil")
+        app.switch_row.set_subtitle("Running")
         print("Yggdrasil started. Waiting for address…")
         app._set_ip_labels("-", "-")
 
-        Thread(
-            target=_poll_for_addresses,
-            args=(app,),
-            daemon=True,
-        ).start()
-
-        Thread(
-            target=_watch_process,
-            args=(app, app.process),
-            daemon=True,
-        ).start()
+        Thread(target=_poll_for_addresses, args=(app,), daemon=True).start()
+        Thread(target=_watch_process, args=(app, app.process), daemon=True).start()
 
     elif not state and app.process is not None:
         stop_yggdrasil(app.process)
         print("Yggdrasil stopped.")
-        app.label.set_label("Enable Yggdrasil")
+        app.switch_row.set_subtitle("Stopped")
         app.process = None
         app._set_ip_labels("-", "-")
 

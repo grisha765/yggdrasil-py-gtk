@@ -10,7 +10,6 @@ from yggui.func.ygg import switch_switched, stop_yggdrasil
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
 from yggui.func.private_key import load_private_key
-
 from yggui.core.common import Default
 
 
@@ -29,7 +28,7 @@ class MyApp(Adw.Application):
         self.GOrientation = Gtk.Orientation
 
         self.process = None
-        self.peers = []
+        self.peers: list[str] = []
         self.current_private_key = ""
         self.default_private_key = ""
 
@@ -41,47 +40,47 @@ class MyApp(Adw.Application):
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION,
         )
 
-
     def on_activate(self, _app):
         builder = Gtk.Builder()
         builder.add_from_file(str(Default.ui_file))
 
-        self.win = builder.get_object("main_window")
+        self.win: Gtk.ApplicationWindow = builder.get_object("main_window")
         self.win.set_application(self)
         self.win.present()
 
         self.main_box = builder.get_object("main")
         self.settings_box = builder.get_object("settings")
-        self.stack = builder.get_object("stack")
+        self.stack: Gtk.Stack = builder.get_object("stack")
+        self.main_button: Gtk.Button = builder.get_object("main_button")
+        self.settings_button: Gtk.Button = builder.get_object("settings_button")
 
-        self.main_button = builder.get_object("main_button")
-        self.settings_button = builder.get_object("settings_button")
+        self.switch_row: Adw.SwitchRow = builder.get_object("switch_row")
 
-        self.peers_box = builder.get_object("peers_box")
-        self.private_key_entry = builder.get_object("private_key_entry")
-        self.edit_private_key_button = builder.get_object(
+        self.switch: Adw.SwitchRow = self.switch_row
+
+        self.address_row: Adw.ActionRow = builder.get_object("address_row")
+        self.subnet_row: Adw.ActionRow = builder.get_object("subnet_row")
+
+        self.switch.set_active(False)
+        self._set_ip_labels("-", "-")
+
+        self.peers_box: Gtk.Box = builder.get_object("peers_box")
+        self.private_key_entry: Gtk.Entry = builder.get_object("private_key_entry")
+        self.edit_private_key_button: Gtk.Button = builder.get_object(
             "edit_private_key_button"
         )
-        self.reset_private_key_button = builder.get_object(
+        self.reset_private_key_button: Gtk.Button = builder.get_object(
             "reset_private_key_button"
         )
 
-        self.label = builder.get_object("switch_label")
-        self.switch = builder.get_object("switch1")
-        self.switch.set_active(False)
-
-        self.address_label = builder.get_object("address_label")
-        self.subnet_label = builder.get_object("subnet_label")
-        self._set_ip_labels("-", "-")
-
         if Default.ygg_path is None:
             self.switch.set_sensitive(False)
-            self.label.set_label("Yggdrasil not found")
+            self.switch_row.set_subtitle("Yggdrasil not found")
         else:
             create_config()
-            self.switch.connect(
-                "state-set",
-                lambda sw, state: switch_switched(self, sw, state),
+            self.switch_row.connect(
+                "notify::active",
+                lambda row, _pspec: switch_switched(self, row, row.get_active()),
             )
 
         load_config(self)
@@ -92,6 +91,7 @@ class MyApp(Adw.Application):
 
         self.stack.set_visible_child(self.main_box)
         self._update_nav_buttons(self.main_button)
+
 
     def on_shutdown(self, _app):
         if self.process is not None:
@@ -106,8 +106,8 @@ class MyApp(Adw.Application):
 
 
     def _set_ip_labels(self, address: str, subnet: str) -> None:
-        self.address_label.set_label(f"IPv6 Address:  {address}")
-        self.subnet_label.set_label(f"IPv6 Subnet:   {subnet}")
+        self.address_row.set_subtitle(address)
+        self.subnet_row.set_subtitle(subnet)
 
     def _update_nav_buttons(self, active_btn: Gtk.Button) -> None:
         for btn in (self.main_button, self.settings_button):
@@ -118,7 +118,6 @@ class MyApp(Adw.Application):
     def switch_to_main(self, _button):
         self.stack.set_visible_child(self.main_box)
         self._update_nav_buttons(self.main_button)
-
 
     def switch_to_settings(self, _button):
         self.stack.set_visible_child(self.settings_box)

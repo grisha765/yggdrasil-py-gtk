@@ -12,6 +12,7 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
 
+        <!-- Header/navigation -->
         <child>
           <object class="GtkHeaderBar" id="header">
             <child type="title">
@@ -35,48 +36,52 @@
           </object>
         </child>
 
+        <!-- Stacked pages -->
         <child>
           <object class="GtkStack" id="stack">
 
+            <!-- MAIN PAGE -->
             <child>
               <object class="GtkBox" id="main">
                 <property name="orientation">vertical</property>
 
                 <child>
-                  <object class="GtkBox" id="switch_box">
-                    <property name="halign">center</property>
-                    <property name="margin-top">10</property>
+                  <object class="AdwClamp">
                     <child>
-                      <object class="GtkLabel" id="switch_label">
-                        <property name="label">Enable Yggdrasil</property>
-                        <property name="margin-end">10</property>
+                      <object class="AdwPreferencesGroup" id="main_group">
+
+                        <!-- Yggdrasil switch row -->
+                        <child>
+                          <object class="AdwSwitchRow" id="switch_row">
+                            <property name="title">Yggdrasil</property>
+                            <property name="subtitle">Stopped</property>
+                          </object>
+                        </child>
+
+                        <!-- IPv6 address -->
+                        <child>
+                          <object class="AdwActionRow" id="address_row">
+                            <property name="title">IPv6 Address</property>
+                            <property name="subtitle">–</property>
+                          </object>
+                        </child>
+
+                        <!-- IPv6 subnet -->
+                        <child>
+                          <object class="AdwActionRow" id="subnet_row">
+                            <property name="title">IPv6 Subnet</property>
+                            <property name="subtitle">–</property>
+                          </object>
+                        </child>
+
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkSwitch" id="switch1"/>
-                    </child>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel" id="address_label">
-                    <property name="halign">center</property>
-                    <property name="css-classes">info-line</property>
-                    <property name="label">IPv6 Address:  –</property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkLabel" id="subnet_label">
-                    <property name="halign">center</property>
-                    <property name="css-classes">info-line</property>
-                    <property name="label">IPv6 Subnet:   –</property>
-                    <property name="margin-bottom">10</property>
                   </object>
                 </child>
               </object>
             </child>
 
+            <!-- SETTINGS PAGE -->
             <child>
               <object class="GtkBox" id="settings">
                 <property name="orientation">vertical</property>
@@ -85,22 +90,23 @@
                   <object class="AdwClamp">
                     <child>
                       <object class="AdwPreferencesGroup">
+
+                        <!-- Private‑key row -->
                         <child>
                           <object class="AdwActionRow" id="private_key_row">
                             <property name="title">PrivateKey</property>
+
                             <child type="suffix">
                               <object class="GtkEntry" id="private_key_entry">
                                 <property name="hexpand">True</property>
                                 <property name="editable">False</property>
                               </object>
                             </child>
-
                             <child type="suffix">
                               <object class="GtkButton" id="edit_private_key_button">
                                 <property name="icon-name">document-edit-symbolic</property>
                               </object>
                             </child>
-
                             <child type="suffix">
                               <object class="GtkButton" id="reset_private_key_button">
                                 <property name="icon-name">view-refresh-symbolic</property>
@@ -108,6 +114,8 @@
                             </child>
                           </object>
                         </child>
+
+                        <!-- Peers list -->
                         <child>
                           <object class="AdwExpanderRow" id="peers_card">
                             <property name="title">Peers</property>
@@ -124,6 +132,7 @@
                             </child>
                           </object>
                         </child>
+
                       </object>
                     </child>
                   </object>

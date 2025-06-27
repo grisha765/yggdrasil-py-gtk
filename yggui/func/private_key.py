@@ -2,7 +2,7 @@ import json
 import subprocess
 
 from yggui.core.common import Default
-from gi.repository import Gtk, Adw  # type: ignore
+from gi.repository import Gtk  # type: ignore
 
 
 def _read_config():
@@ -83,13 +83,9 @@ def load_private_key(app):
     focus_controller.connect("leave", lambda c: _on_focus_leave(app, c))
     app.private_key_row.add_controller(focus_controller)
 
-    gesture = Gtk.GestureClick.new()
-    gesture.connect(
-        "released",
-        lambda _g, _n, _x, _y: _regenerate(app),
-    )
-    app.private_key_regen_icon.add_controller(gesture)
+    app.private_key_regen_icon.connect("clicked", lambda _b: _regenerate(app))
 
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
+

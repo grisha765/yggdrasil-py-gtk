@@ -123,8 +123,14 @@
                             <property name="hexpand">True</property>
 
                             <child type="suffix">
-                              <object class="GtkImage" id="private_key_regen_icon">
-                                <property name="icon-name">view-refresh-symbolic</property>
+                              <object class="GtkButton" id="private_key_regen_icon">
+                                <property name="css-classes">flat</property>
+                                <property name="focus-on-click">False</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="icon-name">view-refresh-symbolic</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>

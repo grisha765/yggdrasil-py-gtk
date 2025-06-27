@@ -83,7 +83,7 @@ class MyApp(Adw.Application):
         self.peers_box: Gtk.Box = builder.get_object("peers_box")
 
         self.private_key_row: Adw.EntryRow = builder.get_object("private_key_row")
-        self.private_key_regen_icon: Gtk.Image = builder.get_object(
+        self.private_key_regen_icon: Gtk.Button = builder.get_object(
             "private_key_regen_icon"
         )
 

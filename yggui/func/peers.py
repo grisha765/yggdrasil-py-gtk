@@ -29,15 +29,10 @@ def load_config(app):
     cfg = _read_config()
     app.peers = cfg.get("Peers", [])
     _rebuild_peers_box(app)
-    # CHANGED
     add_btn = getattr(app, "add_peer_btn", None)
-    # CHANGED
     if add_btn is None:
-        # CHANGED
         add_btn = app.peers_box.get_parent().get_last_child()
-        # CHANGED
         app.add_peer_btn = add_btn
-    # CHANGED
     add_btn.connect("clicked", lambda _b: _open_add_peer_dialog(app))
 
 
@@ -60,8 +55,6 @@ def _rebuild_peers_box(app):
         trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
 
-    # (The in‑list “Add peer” row has been removed)
-
     count = len(app.peers)
     if count == 0:
         app.peers_card.set_subtitle("No peers configured")
@@ -71,61 +64,41 @@ def _rebuild_peers_box(app):
 
 
 def _open_add_peer_dialog(app):
-    dialog = Adw.Dialog.new()
-    dialog.set_title("Add Peer")
+    dialog = Adw.AlertDialog.new("Add Peer", None)
 
-    content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
-    dialog.set_child(content)
+    group = Adw.PreferencesGroup()
+    dialog.set_extra_child(group)
 
     domain_row = Adw.EntryRow()
     domain_row.set_title("Domain")
-    content.append(domain_row)
+    group.add(domain_row)
 
-    proto_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-    proto_label = Gtk.Label(label="Protocol:")
-    proto_box.append(proto_label)
-    cb_tcp = Gtk.CheckButton(label="tcp")
-    cb_tls = Gtk.CheckButton(label="tls")
-    cb_quic = Gtk.CheckButton(label="quic")
-    proto_box.append(cb_tcp)
-    proto_box.append(cb_tls)
-    proto_box.append(cb_quic)
-    content.append(proto_box)
+    proto_row = Adw.ComboRow()
+    proto_row.set_title("Protocol")
+    proto_model = Gtk.StringList.new(["tcp", "tls", "quic"])
+    proto_row.set_model(proto_model)
+    proto_row.set_selected(0)
+    group.add(proto_row)
 
     sni_row = Adw.EntryRow()
     sni_row.set_title("SNI")
     sni_row.set_visible(False)
-    content.append(sni_row)
+    group.add(sni_row)
 
-    def _proto_toggled(btn):
-        if btn.get_active():
-            for b in (cb_tcp, cb_tls, cb_quic):
-                if b is not btn:
-                    b.set_active(False)
-        sni_row.set_visible(cb_tls.get_active())
+    def _update_sni_row(_row, _pspec):
+        sni_row.set_visible(proto_row.get_selected() == 1)
+    proto_row.connect("notify::selected", _update_sni_row)
 
-    for b in (cb_tcp, cb_tls, cb_quic):
-        b.connect("toggled", _proto_toggled)
+    dialog.add_response("cancel", "Cancel")
+    dialog.add_response("add", "Add")
+    dialog.set_response_appearance("add", Adw.ResponseAppearance.SUGGESTED)
+    dialog.set_default_response("add")
 
-    cb_tcp.set_active(True)
-
-    action_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
-    cancel_btn = Gtk.Button(label="Cancel")
-    add_btn = Gtk.Button(label="Add")
-    add_btn.add_css_class("suggested-action")
-    action_box.append(cancel_btn)
-    action_box.append(add_btn)
-    content.append(action_box)
-
-    cancel_btn.connect("clicked", lambda _b: dialog.close())
-
-    def _commit(_b):
+    def _commit():
         domain = domain_row.get_text().strip()
         if not domain:
             return
-        protocol = ("tls" if cb_tls.get_active()
-                    else "quic" if cb_quic.get_active()
-                    else "tcp")
+        protocol = ["tcp", "tls", "quic"][proto_row.get_selected()]
         peer = f"{protocol}://{domain}"
         sni = sni_row.get_text().strip()
         if protocol == "tls" and sni:
@@ -136,8 +109,11 @@ def _open_add_peer_dialog(app):
             _rebuild_peers_box(app)
         dialog.close()
 
-    add_btn.connect("clicked", _commit)
+    def _on_response(_d, response):
+        if response == "add":
+            _commit()
 
+    dialog.connect("response", _on_response)
     dialog.present(app.win)
 
 
@@ -150,4 +126,3 @@ def _remove_peer(app, peer):
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
-

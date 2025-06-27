@@ -51,6 +51,13 @@ class MyApp(Adw.Application):
 
         GLib.idle_add(lambda: PkexecShell.run("# privilege escalation") or False)
 
+        self.toast_overlay: Adw.ToastOverlay = builder.get_object("toast_overlay")
+        if self.toast_overlay is None:
+            self.toast_overlay = Adw.ToastOverlay.new()
+            child = self.win.get_child()
+            self.win.set_child(self.toast_overlay)
+            self.toast_overlay.set_child(child)
+
         self.stack: Gtk.Stack = builder.get_object("stack")
         self.main_button: Gtk.Button = builder.get_object("main_button")
         self.settings_button: Gtk.Button = builder.get_object("settings_button")
@@ -66,6 +73,9 @@ class MyApp(Adw.Application):
         self.address_row: Adw.ActionRow = builder.get_object("address_row")
         self.subnet_row: Adw.ActionRow = builder.get_object("subnet_row")
 
+        self.address_copy_icon: Gtk.Image = builder.get_object("address_copy_icon")
+        self.subnet_copy_icon: Gtk.Image = builder.get_object("subnet_copy_icon")
+
         self.ygg_switch.set_active(False)
         self._set_ip_labels("-", "-")
         self._expand_ipv6_card(False)
@@ -75,6 +85,15 @@ class MyApp(Adw.Application):
         self.private_key_row: Adw.ActionRow = builder.get_object("private_key_row")
 
         self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
+
+        self._make_row_clickable(
+            self.address_row,
+            lambda: self.address_row.get_subtitle(),
+        )
+        self._make_row_clickable(
+            self.subnet_row,
+            lambda: self.subnet_row.get_subtitle(),
+        )
 
         if Default.ygg_path is None:
             self.ygg_switch.set_sensitive(False)
@@ -102,6 +121,14 @@ class MyApp(Adw.Application):
             self.ygg_pid = None
         PkexecShell.stop()
 
+    def _make_row_clickable(self, widget: Gtk.Widget, get_text):
+        gesture = Gtk.GestureClick.new()
+        gesture.connect(
+            "released",
+            lambda _g, _n, _x, _y: self._copy_to_clipboard(get_text()),
+        )
+        widget.add_controller(gesture)
+
     def _on_sigint(self):
         if self.ygg_pid is not None:
             stop_yggdrasil(self.ygg_pid)
@@ -126,6 +153,14 @@ class MyApp(Adw.Application):
         for btn in (self.main_button, self.settings_button):
             btn.remove_css_class("suggested-action")
         active_btn.add_css_class("suggested-action")
+
+    def _copy_to_clipboard(self, text: str) -> None:
+        if not text or text == "-":
+            return
+        clipboard = self.win.get_clipboard()
+        clipboard.set(text)
+        toast = Adw.Toast.new("Copied to clipboard")
+        self.toast_overlay.add_toast(toast)
 
     def switch_to_main(self, _button):
         self.stack.set_visible_child(self.main_box)

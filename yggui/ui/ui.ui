@@ -72,6 +72,12 @@
                                   <object class="AdwActionRow" id="address_row">
                                     <property name="title">IPv6 Address</property>
                                     <property name="subtitle">–</property>
+                                    <property name="activatable">True</property>
+                                    <child type="suffix">
+                                      <object class="GtkImage" id="address_copy_icon">
+                                        <property name="icon-name">edit-copy-symbolic</property>
+                                      </object>
+                                    </child>
                                   </object>
                                 </child>
 
@@ -79,6 +85,12 @@
                                   <object class="AdwActionRow" id="subnet_row">
                                     <property name="title">IPv6 Subnet</property>
                                     <property name="subtitle">–</property>
+                                    <property name="activatable">True</property>
+                                    <child type="suffix">
+                                      <object class="GtkImage" id="subnet_copy_icon">
+                                        <property name="icon-name">edit-copy-symbolic</property>
+                                      </object>
+                                    </child>
                                   </object>
                                 </child>
                               </object>

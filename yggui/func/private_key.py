@@ -5,12 +5,6 @@ from yggui.core.common import Default
 from gi.repository import Gtk, Adw  # type: ignore
 
 
-def _truncate_key(key: str, max_len: int = 48) -> str:
-    if len(key) <= max_len:
-        return key
-    return f"{key[:24]}…{key[-24:]}"
-
-
 def _read_config():
     if Default.config_path.exists():
         try:
@@ -64,40 +58,6 @@ def _regenerate(app):
     app.current_private_key = new_key
     app.private_key_row.set_text(new_key)
     app.private_key_regen_icon.set_visible(True)
-
-
-def _open_editor_dialog(app):
-    dialog = Adw.AlertDialog()
-    dialog.set_heading("Edit Private Key")
-
-    entry = Gtk.Entry()
-    entry.set_hexpand(True)
-    entry.set_text(app.current_private_key)
-    dialog.set_extra_child(entry)
-
-    dialog.add_response("cancel", "Cancel")
-    dialog.add_response("regen", "Regenerate")
-    dialog.add_response("save", "Save")
-    dialog.set_default_response("save")
-
-    def _on_response(dlg, response):
-        if response == "cancel":
-            return
-        if response == "regen":
-            _regenerate(app)
-            entry.set_text(app.current_private_key)
-            return
-        if response == "save":
-            new_val = entry.get_text().strip()
-            if new_val:
-                cfg = _read_config()
-                cfg["PrivateKey"] = new_val
-                _write_config(cfg)
-                app.current_private_key = new_val
-                app.private_key_row.set_text(new_val)
-
-    dialog.connect("response", _on_response)
-    dialog.present(app.win)
 
 
 def load_private_key(app):

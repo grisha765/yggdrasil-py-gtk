@@ -1,5 +1,5 @@
 import json
-from gi.repository import Gtk  # type: ignore
+from gi.repository import Gtk, Adw  # type: ignore
 
 from yggui.core.common import Default
 
@@ -29,6 +29,16 @@ def load_config(app):
     cfg = _read_config()
     app.peers = cfg.get("Peers", [])
     _rebuild_peers_box(app)
+    # CHANGED
+    add_btn = getattr(app, "add_peer_btn", None)
+    # CHANGED
+    if add_btn is None:
+        # CHANGED
+        add_btn = app.peers_box.get_parent().get_last_child()
+        # CHANGED
+        app.add_peer_btn = add_btn
+    # CHANGED
+    add_btn.connect("clicked", lambda _b: _open_add_peer_dialog(app))
 
 
 def _rebuild_peers_box(app):
@@ -39,39 +49,19 @@ def _rebuild_peers_box(app):
         child = nxt
 
     for peer in app.peers:
-        row = app.GBox(orientation=app.GOrientation.HORIZONTAL, spacing=12)
-        row.set_hexpand(True)
+        row = Adw.ActionRow()
+        row.set_title(peer)
 
-        entry_display = app.GEntry()
-        entry_display.set_text(peer)
-        entry_display.set_editable(False)
-        entry_display.set_hexpand(True)
-        entry_display.set_margin_start(6)
+        trash_btn = Gtk.Button()
+        trash_btn.set_icon_name("user-trash-symbolic")
+        trash_btn.add_css_class("destructive-action")
+        row.add_suffix(trash_btn)
 
-        minus = Gtk.Button(label="–")
-        minus.set_margin_end(6)
-
-        row.append(entry_display)
-        row.append(minus)
-
-        minus.connect("clicked", lambda _btn, p=peer: _remove_peer(app, p))
+        trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
 
-    add_row = app.GBox(orientation=app.GOrientation.HORIZONTAL, spacing=12)
-    add_row.set_hexpand(True)
+    # (The in‑list “Add peer” row has been removed)
 
-    entry = app.GEntry()
-    entry.set_hexpand(True)
-    entry.set_margin_start(6)
-
-    plus = Gtk.Button(label="+")
-    plus.set_margin_end(6)
-
-    add_row.append(entry)
-    add_row.append(plus)
-
-    plus.connect("clicked", lambda _btn: _add_peer(app, entry))
-    app.peers_box.append(add_row)
     count = len(app.peers)
     if count == 0:
         app.peers_card.set_subtitle("No peers configured")
@@ -80,13 +70,75 @@ def _rebuild_peers_box(app):
         app.peers_card.set_subtitle(f"{count} peer node{plural}")
 
 
-def _add_peer(app, entry):
-    text = entry.get_text().strip()
-    if not text or text in app.peers:
-        return
-    app.peers.append(text)
-    _save_peers_to_disk(app)
-    _rebuild_peers_box(app)
+def _open_add_peer_dialog(app):
+    dialog = Adw.Dialog.new()
+    dialog.set_title("Add Peer")
+
+    content = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+    dialog.set_child(content)
+
+    domain_row = Adw.EntryRow()
+    domain_row.set_title("Domain")
+    content.append(domain_row)
+
+    proto_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+    proto_label = Gtk.Label(label="Protocol:")
+    proto_box.append(proto_label)
+    cb_tcp = Gtk.CheckButton(label="tcp")
+    cb_tls = Gtk.CheckButton(label="tls")
+    cb_quic = Gtk.CheckButton(label="quic")
+    proto_box.append(cb_tcp)
+    proto_box.append(cb_tls)
+    proto_box.append(cb_quic)
+    content.append(proto_box)
+
+    sni_row = Adw.EntryRow()
+    sni_row.set_title("SNI")
+    sni_row.set_visible(False)
+    content.append(sni_row)
+
+    def _proto_toggled(btn):
+        if btn.get_active():
+            for b in (cb_tcp, cb_tls, cb_quic):
+                if b is not btn:
+                    b.set_active(False)
+        sni_row.set_visible(cb_tls.get_active())
+
+    for b in (cb_tcp, cb_tls, cb_quic):
+        b.connect("toggled", _proto_toggled)
+
+    cb_tcp.set_active(True)
+
+    action_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+    cancel_btn = Gtk.Button(label="Cancel")
+    add_btn = Gtk.Button(label="Add")
+    add_btn.add_css_class("suggested-action")
+    action_box.append(cancel_btn)
+    action_box.append(add_btn)
+    content.append(action_box)
+
+    cancel_btn.connect("clicked", lambda _b: dialog.close())
+
+    def _commit(_b):
+        domain = domain_row.get_text().strip()
+        if not domain:
+            return
+        protocol = ("tls" if cb_tls.get_active()
+                    else "quic" if cb_quic.get_active()
+                    else "tcp")
+        peer = f"{protocol}://{domain}"
+        sni = sni_row.get_text().strip()
+        if protocol == "tls" and sni:
+            peer += f"?sni={sni}"
+        if peer not in app.peers:
+            app.peers.append(peer)
+            _save_peers_to_disk(app)
+            _rebuild_peers_box(app)
+        dialog.close()
+
+    add_btn.connect("clicked", _commit)
+
+    dialog.present(app.win)
 
 
 def _remove_peer(app, peer):

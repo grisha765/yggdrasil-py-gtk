@@ -137,13 +137,28 @@
                             <property name="subtitle">No peers configured</property>
 
                             <child>
-                              <object class="GtkBox" id="peers_box">
+                              <object class="GtkBox" id="peers_container">
                                 <property name="orientation">vertical</property>
-                                <property name="halign">center</property>
-                                <property name="margin-top">6</property>
-                                <property name="margin-bottom">6</property>
-                                <property name="halign">fill</property>
                                 <property name="spacing">6</property>
+
+                                <child>
+                                  <object class="GtkListBox" id="peers_box">
+                                    <property name="css-classes">boxed-list</property>
+                                    <property name="selection-mode">none</property>
+                                    <property name="margin-top">6</property>
+                                    <property name="margin-bottom">6</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkButton" id="add_peer_btn">
+                                    <property name="label">Add peer</property>
+                                    <property name="css-classes">suggested-action</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="halign">fill</property>
+                                  </object>
+                                </child>
+
                               </object>
                             </child>
                           </object>

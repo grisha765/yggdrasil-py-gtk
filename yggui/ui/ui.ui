@@ -117,14 +117,14 @@
                       <object class="AdwPreferencesGroup" id="settings_group">
 
                         <child>
-                          <object class="AdwActionRow" id="private_key_row">
+                          <object class="AdwEntryRow" id="private_key_row">
                             <property name="title">PrivateKey</property>
-                            <property name="subtitle">–</property>
-                            <property name="activatable">True</property>
+                            <property name="text"></property>
+                            <property name="hexpand">True</property>
 
                             <child type="suffix">
-                              <object class="GtkImage" id="edit_private_key_icon">
-                                <property name="icon-name">document-edit-symbolic</property>
+                              <object class="GtkImage" id="private_key_regen_icon">
+                                <property name="icon-name">view-refresh-symbolic</property>
                               </object>
                             </child>
                           </object>

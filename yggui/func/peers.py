@@ -1,5 +1,6 @@
 import json
 from gi.repository import Gtk, Adw  # type: ignore
+from urllib.parse import urlparse, parse_qs
 
 from yggui.core.common import Default
 
@@ -43,13 +44,38 @@ def _rebuild_peers_box(app):
         app.peers_box.remove(child)
         child = nxt
 
-    for peer in app.peers:
+    for peer in sorted(app.peers):
+        parsed = urlparse(peer)
+        proto = parsed.scheme
+        host = parsed.hostname or parsed.netloc.split("?", 1)[0]
+        port = f":{parsed.port}" if parsed.port else ""
+        title = f"{host}{port}"
+
         row = Adw.ActionRow()
-        row.set_title(peer)
+        row.set_title(title)
+        row.add_css_class("compact")
+
+        subtitle_parts = [proto.upper()]
+        if proto == "tls":
+            sni = parse_qs(parsed.query).get("sni", [None])[0]
+            if sni:
+                subtitle_parts.append(f"SNI: {sni}")
+        row.set_subtitle(" • ".join(subtitle_parts))
+        row.set_activatable(False)
+
+        icon_map = {
+            "tcp": "network-wired-symbolic",
+            "tls": "security-high-symbolic",
+            "quic": "network-transmit-receive-symbolic",
+        }
+        icon_name = icon_map.get(proto, "network-server-symbolic")
+        icon = Gtk.Image.new_from_icon_name(icon_name)
+        row.add_prefix(icon)
 
         trash_btn = Gtk.Button()
         trash_btn.set_icon_name("user-trash-symbolic")
         trash_btn.add_css_class("destructive-action")
+        trash_btn.add_css_class("flat")
         row.add_suffix(trash_btn)
 
         trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
@@ -126,3 +152,4 @@ def _remove_peer(app, peer):
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
+

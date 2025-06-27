@@ -143,6 +143,7 @@
 
                                 <child>
                                   <object class="GtkListBox" id="peers_box">
+                                    <property name="show-separators">True</property>
                                     <property name="css-classes">boxed-list</property>
                                     <property name="selection-mode">none</property>
                                     <property name="margin-top">6</property>

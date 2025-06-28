@@ -22,20 +22,6 @@ build-options:
     - --share=network
 
 modules:
-  - name: yggui
-    buildsystem: simple
-    build-commands:
-      - pip3 install --no-build-isolation --no-cache-dir --no-deps --prefix=/app .
-      - install -Dm755 yggui.sh /app/bin/yggui.sh
-    sources:
-      - type: dir
-        path: .
-      - type: script
-        dest-filename: yggui.sh
-        commands:
-          - #!/usr/bin/env sh
-          - exec python3 -m yggui "$@"
-
   - name: yggdrasil
     buildsystem: simple
     build-options:
@@ -63,3 +49,16 @@ modules:
         url: https://github.com/yggdrasil-network/yggstack.git
         commit: "8ad1962f6456a81a6ec5a9b41fd0985f4b5768fe"
 
+  - name: yggui
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-build-isolation --no-cache-dir --no-deps --prefix=/app .
+      - install -Dm755 yggui.sh /app/bin/yggui.sh
+    sources:
+      - type: dir
+        path: .
+      - type: script
+        dest-filename: yggui.sh
+        commands:
+          - #!/usr/bin/env sh
+          - exec python3 -m yggui "$@"

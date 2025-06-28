@@ -82,7 +82,8 @@ def switch_switched(app, _switch, state: bool) -> None:
             if use_stack:
                 proc = start_yggstack(
                     app.socks_config.get("listen", "127.0.0.1:1080"),
-                    app.socks_config.get("dns", ""),
+                    app.socks_config.get("dns_ip", ""),
+                    app.socks_config.get("dns_port", "53"),
                 )
                 app.socks_proc = proc
                 app.ygg_pid = proc.pid

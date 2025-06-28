@@ -1,5 +1,6 @@
 import signal
 import subprocess
+
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -20,7 +21,8 @@ from yggui.func.socks import (
     load_socks_config,
     socks_switch_toggled,
     listen_changed,
-    dns_changed,
+    ip_changed,
+    port_changed,
     stop_yggstack
 )
 
@@ -104,7 +106,8 @@ class MyApp(Adw.Application):
         self.socks_card: Adw.ExpanderRow = builder.get_object("socks_card")
         self.socks_switch: Gtk.Switch = builder.get_object("socks_switch")
         self.socks_listen_row: Adw.EntryRow = builder.get_object("socks_listen_row")
-        self.socks_dns_row: Adw.EntryRow = builder.get_object("socks_dns_row")
+        self.socks_dns_ip_row: Adw.EntryRow = builder.get_object("socks_dns_ip_row")
+        self.socks_dns_port_row: Adw.EntryRow = builder.get_object("socks_dns_port_row")
 
         self._make_row_clickable(
             self.address_row,
@@ -144,9 +147,13 @@ class MyApp(Adw.Application):
                     "notify::text",
                     lambda r, _pspec: listen_changed(self, r, _pspec),
                 )
-                self.socks_dns_row.connect(
+                self.socks_dns_ip_row.connect(
                     "notify::text",
-                    lambda r, _pspec: dns_changed(self, r, _pspec),
+                    lambda r, _pspec: ip_changed(self, r, _pspec),
+                )
+                self.socks_dns_port_row.connect(
+                    "notify::text",
+                    lambda r, _pspec: port_changed(self, r, _pspec),
                 )
 
         load_config(self)
@@ -231,3 +238,4 @@ class MyApp(Adw.Application):
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
+

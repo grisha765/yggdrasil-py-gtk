@@ -196,9 +196,17 @@
                                 </child>
 
                                 <child>
-                                  <object class="AdwEntryRow" id="socks_dns_row">
-                                    <property name="title">DNS Nameserver</property>
+                                  <object class="AdwEntryRow" id="socks_dns_ip_row">
+                                    <property name="title">DNS Server</property>
                                     <property name="text"></property>
+                                    <property name="visible">False</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="AdwEntryRow" id="socks_dns_port_row">
+                                    <property name="title">DNS Port</property>
+                                    <property name="text">53</property>
                                     <property name="visible">False</property>
                                   </object>
                                 </child>

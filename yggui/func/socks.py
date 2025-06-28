@@ -27,24 +27,32 @@ def _save_param(key: str, value):
 
 def _update_visibility(app, enabled: bool):
     app.socks_listen_row.set_visible(enabled)
-    app.socks_dns_row.set_visible(enabled)
+    app.socks_dns_ip_row.set_visible(enabled)
+    app.socks_dns_port_row.set_visible(enabled)
 
 
 def load_socks_config(app):
     cfg = _read_config()
     enabled = cfg.get("yggstack-enable", False)
     listen = cfg.get("yggstack-listen", "127.0.0.1:1080")
-    dns = cfg.get("yggstack-dns", "")
+    dns_ip = cfg.get("yggstack-dns-ip", "")
+    dns_port = cfg.get("yggstack-dns-port", "53")
     if Default.yggstack_path is None:
         enabled = False
         app.socks_switch.set_sensitive(False)
         app.socks_card.set_sensitive(False)
         app.socks_card.set_subtitle("Yggstack not found")
-    app.socks_config = {"enabled": enabled, "listen": listen, "dns": dns}
+    app.socks_config = {
+        "enabled": enabled,
+        "listen": listen,
+        "dns_ip": dns_ip,
+        "dns_port": dns_port,
+    }
     app.socks_switch.set_active(enabled)
     app.socks_card.set_subtitle("Enabled" if enabled else "Disabled")
     app.socks_listen_row.set_text(listen)
-    app.socks_dns_row.set_text(dns)
+    app.socks_dns_ip_row.set_text(dns_ip)
+    app.socks_dns_port_row.set_text(dns_port)
     app.socks_card.set_expanded(enabled)
     _update_visibility(app, enabled)
 
@@ -64,13 +72,19 @@ def listen_changed(app, _row, _pspec):
         app.socks_config["listen"] = value
 
 
-def dns_changed(app, _row, _pspec):
-    value = app.socks_dns_row.get_text().strip()
-    _save_param("yggstack-dns", value)
-    app.socks_config["dns"] = value
+def ip_changed(app, _row, _pspec):
+    value = app.socks_dns_ip_row.get_text().strip()
+    _save_param("yggstack-dns-ip", value)
+    app.socks_config["dns_ip"] = value
 
 
-def start_yggstack(listen: str, dns: str) -> subprocess.Popen[str]:
+def port_changed(app, _row, _pspec):
+    value = app.socks_dns_port_row.get_text().strip() or "53"
+    _save_param("yggstack-dns-port", value)
+    app.socks_config["dns_port"] = value
+
+
+def start_yggstack(listen: str, dns_ip: str, dns_port: str) -> subprocess.Popen[str]:
     cmd = [
         Default.yggstack_path or "yggstack",
         "-useconffile",
@@ -78,8 +92,12 @@ def start_yggstack(listen: str, dns: str) -> subprocess.Popen[str]:
     ]
     if listen:
         cmd.extend(["-socks", listen])
-    if dns:
-        cmd.extend(["-nameserver", dns])
+    if dns_ip:
+        if ":" in dns_ip and not dns_ip.startswith("["):
+            nameserver = f"[{dns_ip}]:{dns_port}"
+        else:
+            nameserver = f"{dns_ip}:{dns_port}"
+        cmd.extend(["-nameserver", nameserver])
     return subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,

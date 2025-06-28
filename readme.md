@@ -30,10 +30,6 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
         mv ./yggdrasil $HOME/.local/bin/ && \
         mv ./yggdrasilctl $HOME/.local/bin/
         ```
-    - Permission to create tun from user:
-        ```bash
-        sudo setcap CAP_NET_ADMIN=ep ~/.local/bin/yggdrasil
-        ```
 4. **Run the GUI**
     ```bash
     uv run yggui

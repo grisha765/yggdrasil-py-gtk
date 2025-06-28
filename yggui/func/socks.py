@@ -1,0 +1,102 @@
+import json
+import subprocess
+import signal
+from yggui.core.common import Default
+
+
+def _read_config():
+    if Default.config_path.exists():
+        try:
+            with open(Default.config_path, "r", encoding="utf-8") as handle:
+                return json.load(handle)
+        except Exception:
+            return {}
+    return {}
+
+
+def _write_config(cfg):
+    with open(Default.config_path, "w", encoding="utf-8") as handle:
+        json.dump(cfg, handle, indent=2)
+
+
+def _save_param(key: str, value):
+    cfg = _read_config()
+    cfg[key] = value
+    _write_config(cfg)
+
+
+def _update_visibility(app, enabled: bool):
+    app.socks_listen_row.set_visible(enabled)
+    app.socks_dns_row.set_visible(enabled)
+
+
+def load_socks_config(app):
+    cfg = _read_config()
+    enabled = cfg.get("yggstack-enable", False)
+    listen = cfg.get("yggstack-listen", "127.0.0.1:1080")
+    dns = cfg.get("yggstack-dns", "")
+    if Default.yggstack_path is None:
+        enabled = False
+        app.socks_switch.set_sensitive(False)
+        app.socks_card.set_sensitive(False)
+        app.socks_card.set_subtitle("Yggstack not found")
+    app.socks_config = {"enabled": enabled, "listen": listen, "dns": dns}
+    app.socks_switch.set_active(enabled)
+    app.socks_card.set_subtitle("Enabled" if enabled else "Disabled")
+    app.socks_listen_row.set_text(listen)
+    app.socks_dns_row.set_text(dns)
+    app.socks_card.set_expanded(enabled)
+    _update_visibility(app, enabled)
+
+
+def socks_switch_toggled(app, _switch, state: bool):
+    _save_param("yggstack-enable", state)
+    app.socks_card.set_subtitle("Enabled" if state else "Disabled")
+    app.socks_card.set_expanded(state)
+    _update_visibility(app, state)
+    app.socks_config["enabled"] = state
+
+
+def listen_changed(app, _row, _pspec):
+    value = app.socks_listen_row.get_text().strip()
+    if value:
+        _save_param("yggstack-listen", value)
+        app.socks_config["listen"] = value
+
+
+def dns_changed(app, _row, _pspec):
+    value = app.socks_dns_row.get_text().strip()
+    _save_param("yggstack-dns", value)
+    app.socks_config["dns"] = value
+
+
+def start_yggstack(listen: str, dns: str) -> subprocess.Popen[str]:
+    cmd = [
+        Default.yggstack_path or "yggstack",
+        "-useconffile",
+        str(Default.config_path.resolve()),
+    ]
+    if listen:
+        cmd.extend(["-socks", listen])
+    if dns:
+        cmd.extend(["-nameserver", dns])
+    return subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+
+
+def stop_yggstack(proc: subprocess.Popen[str]) -> None:
+    if proc.poll() is None:
+        try:
+            proc.send_signal(signal.SIGINT)
+            proc.wait(timeout=5)
+        except Exception:
+            proc.kill()
+
+
+if __name__ == "__main__":
+    raise RuntimeError("This module should be run only via main.py")
+

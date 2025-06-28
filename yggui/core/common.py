@@ -12,6 +12,7 @@ def xdg_config(app_name: str) -> Path:
 class Default:
     ygg_path = shutil.which('yggdrasil')
     yggctl_path = shutil.which('yggdrasilctl')
+    yggstack_path = shutil.which('yggstack')
     config_path = xdg_config('yggui') / 'config.json'
     pkexec_path = shutil.which("pkexec")
     ui_file = files('yggui.ui').joinpath('ui.ui')

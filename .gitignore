@@ -12,3 +12,7 @@ wheels/
 # Files
 config.json
 yggdrasil*
+
+# Flatpak
+.flatpak-builder/
+build-dir/

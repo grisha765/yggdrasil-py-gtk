@@ -171,6 +171,43 @@
                           </object>
                         </child>
 
+                        <!-- SOCKS proxy settings -->
+                        <child>
+                          <object class="AdwExpanderRow" id="socks_card">
+                            <property name="title">SOCKS Proxy</property>
+                            <property name="subtitle">Disabled</property>
+                            <child type="suffix">
+                              <object class="GtkSwitch" id="socks_switch">
+                                <property name="active">False</property>
+                                <property name="valign">center</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="socks_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">6</property>
+
+                                <child>
+                                  <object class="AdwEntryRow" id="socks_listen_row">
+                                    <property name="title">Listen (IP:Port)</property>
+                                    <property name="text">127.0.0.1:1080</property>
+                                    <property name="visible">False</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="AdwEntryRow" id="socks_dns_row">
+                                    <property name="title">DNS Nameserver</property>
+                                    <property name="text"></property>
+                                    <property name="visible">False</property>
+                                  </object>
+                                </child>
+
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
                       </object>
                     </child>
                   </object>

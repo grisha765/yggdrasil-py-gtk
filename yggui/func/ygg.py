@@ -6,6 +6,10 @@ from gi.repository import GLib, Gtk  # type: ignore
 
 from yggui.core.common import Default
 from yggui.func.pkexec_shell import PkexecShell
+from yggui.func.socks import (
+    start_yggstack,
+    stop_yggstack
+)
 
 
 def _show_error_dialog(app, message: str) -> None:
@@ -72,11 +76,24 @@ def stop_yggdrasil(pid: int) -> None:
 
 
 def switch_switched(app, _switch, state: bool) -> None:
+    use_stack = getattr(app, "socks_config", {}).get("enabled", False)
     if state and app.ygg_pid is None:
         try:
-            app.ygg_pid = start_yggdrasil()
+            if use_stack:
+                proc = start_yggstack(
+                    app.socks_config.get("listen", "127.0.0.1:1080"),
+                    app.socks_config.get("dns", ""),
+                )
+                app.socks_proc = proc
+                app.ygg_pid = proc.pid
+            else:
+                app.ygg_pid = start_yggdrasil()
         except Exception as exc:
-            GLib.idle_add(_on_process_error, app, f"Failed to start Yggdrasil: {exc}")
+            GLib.idle_add(
+                _on_process_error,
+                app,
+                f"Failed to start {'Yggstack' if use_stack else 'Yggdrasil'}: {exc}",
+            )
             return
 
         app.switch_row.set_subtitle("Running")
@@ -86,7 +103,12 @@ def switch_switched(app, _switch, state: bool) -> None:
         Thread(target=_poll_for_addresses, args=(app,), daemon=True).start()
 
     elif not state and app.ygg_pid is not None:
-        stop_yggdrasil(app.ygg_pid)
+        use_stack = getattr(app, "socks_config", {}).get("enabled", False)
+        if use_stack and getattr(app, "socks_proc", None) is not None:
+            stop_yggstack(app.socks_proc)
+            app.socks_proc = None
+        else:
+            stop_yggdrasil(app.ygg_pid)
         app.switch_row.set_subtitle("Stopped")
         app.ygg_pid = None
         app._set_ip_labels("-", "-")

@@ -1,5 +1,5 @@
 import signal
-
+import subprocess
 import gi
 
 gi.require_version("Gtk", "4.0")
@@ -12,7 +12,17 @@ from yggui.func.config import create_config
 from yggui.func.peers import load_config
 from yggui.func.pkexec_shell import PkexecShell
 from yggui.func.private_key import load_private_key
-from yggui.func.ygg import switch_switched, stop_yggdrasil
+from yggui.func.ygg import (
+        switch_switched,
+        stop_yggdrasil
+)
+from yggui.func.socks import (
+    load_socks_config,
+    socks_switch_toggled,
+    listen_changed,
+    dns_changed,
+    stop_yggstack
+)
 
 
 class MyApp(Adw.Application):
@@ -29,6 +39,8 @@ class MyApp(Adw.Application):
         self.GOrientation = Gtk.Orientation
 
         self.ygg_pid: int | None = None
+        self.socks_proc: subprocess.Popen | None = None
+        self.socks_config: dict = {}
         self.peers: list[str] = []
         self.current_private_key = ""
         self.default_private_key = ""
@@ -89,6 +101,11 @@ class MyApp(Adw.Application):
 
         self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
 
+        self.socks_card: Adw.ExpanderRow = builder.get_object("socks_card")
+        self.socks_switch: Gtk.Switch = builder.get_object("socks_switch")
+        self.socks_listen_row: Adw.EntryRow = builder.get_object("socks_listen_row")
+        self.socks_dns_row: Adw.EntryRow = builder.get_object("socks_dns_row")
+
         self._make_row_clickable(
             self.address_row,
             lambda: self.address_row.get_subtitle(),
@@ -109,9 +126,32 @@ class MyApp(Adw.Application):
                 lambda sw, _pspec: switch_switched(self, sw, sw.get_active()),
             )
             self.ygg_card.connect("notify::expanded", self._card_expanded)
+            if Default.yggstack_path is None:
+                self.socks_switch.set_sensitive(False)
+                self.socks_card.set_sensitive(False)
+                self.socks_card.set_subtitle("Yggstack not found")
+            else:
+                self.socks_switch.connect(
+                    "notify::active",
+                    lambda sw, _pspec: socks_switch_toggled(
+                        self, sw, sw.get_active()
+                    ),
+                )
+                self.socks_card.connect(
+                    "notify::expanded", self._socks_card_expanded
+                )
+                self.socks_listen_row.connect(
+                    "notify::text",
+                    lambda r, _pspec: listen_changed(self, r, _pspec),
+                )
+                self.socks_dns_row.connect(
+                    "notify::text",
+                    lambda r, _pspec: dns_changed(self, r, _pspec),
+                )
 
         load_config(self)
         load_private_key(self)
+        load_socks_config(self)
 
         self.main_button.connect("clicked", self.switch_to_main)
         self.settings_button.connect("clicked", self.switch_to_settings)
@@ -119,9 +159,14 @@ class MyApp(Adw.Application):
         self._update_nav_buttons(self.main_button)
 
     def on_shutdown(self, _app):
-        if self.ygg_pid is not None:
+        if self.ygg_pid is not None and not getattr(
+            self, "socks_config", {}
+        ).get("enabled", False):
             stop_yggdrasil(self.ygg_pid)
             self.ygg_pid = None
+        if self.socks_proc is not None:
+            stop_yggstack(self.socks_proc)
+            self.socks_proc = None
         PkexecShell.stop()
 
     def _make_row_clickable(self, widget: Gtk.Widget, get_text):
@@ -133,9 +178,14 @@ class MyApp(Adw.Application):
         widget.add_controller(gesture)
 
     def _on_sigint(self):
-        if self.ygg_pid is not None:
+        if self.ygg_pid is not None and not getattr(
+            self, "socks_config", {}
+        ).get("enabled", False):
             stop_yggdrasil(self.ygg_pid)
             self.ygg_pid = None
+        if self.socks_proc is not None:
+            stop_yggstack(self.socks_proc)
+            self.socks_proc = None
         self.quit()
 
     def _set_ip_labels(self, address: str, subnet: str) -> None:
@@ -151,6 +201,11 @@ class MyApp(Adw.Application):
         expanded = self.ygg_card.get_expanded()
         if self.ygg_switch.get_active() != expanded:
             self.ygg_switch.set_active(expanded)
+
+    def _socks_card_expanded(self, _row, _pspec) -> None:
+        expanded = self.socks_card.get_expanded()
+        if self.socks_switch.get_active() != expanded:
+            self.socks_switch.set_active(expanded)
 
     def _update_nav_buttons(self, active_btn: Gtk.Button) -> None:
         for btn in (self.main_button, self.settings_button):
@@ -176,4 +231,3 @@ class MyApp(Adw.Application):
 
 if __name__ == "__main__":
     raise RuntimeError("This module should be run only via main.py")
-

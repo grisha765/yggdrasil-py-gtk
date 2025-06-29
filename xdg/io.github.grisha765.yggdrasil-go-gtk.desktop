@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Yggdrasil GTK
+Comment=Graphical interface for the Yggdrasil network
+Icon=io.github.grisha765.yggdrasil-go-gtk
+Type=Application
+Exec=yggui.sh %U
+Categories=Network;GTK;Utility;
+Keywords=yggdrasil;network;overlay;vpn;socks;gtk;
+Terminal=false

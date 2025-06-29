@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.12"/>
+  <requires lib="adw" version="1.0"/>
+
+  <!-- Dialog -->
+  <object class="AdwAlertDialog" id="add_peer_dialog">
+    <property name="heading" translatable="yes">Add peer</property>
+    <property name="default-response">add</property>
+    <property name="close-response">cancel</property>
+    <responses>
+      <response id="cancel" translatable="yes">Cancel</response>
+      <response id="add"    translatable="yes" appearance="suggested">Add</response>
+    </responses>
+
+    <!-- Main -->
+    <property name="extra-child">
+      <object class="AdwPreferencesGroup">
+
+        <!-- Domain -->
+        <child>
+          <object class="AdwEntryRow" id="domain_row">
+            <property name="title" translatable="yes">Domain</property>
+          </object>
+        </child>
+
+        <!-- Protocol -->
+        <child>
+          <object class="AdwComboRow" id="proto_row">
+            <property name="title" translatable="yes">Protocol</property>
+            <property name="selected">0</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item>tcp</item>
+                  <item>tls</item>
+                  <item>quic</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+
+        <!-- SNI -->
+        <child>
+          <object class="AdwEntryRow" id="sni_row">
+            <property name="title" translatable="yes">SNI</property>
+            <property name="visible">False</property>
+          </object>
+        </child>
+
+      </object>
+    </property>
+  </object>
+</interface>
+

@@ -90,53 +90,36 @@ def _rebuild_peers_box(app):
 
 
 def _open_add_peer_dialog(app):
-    dialog = Adw.AlertDialog.new("Add Peer", None)
+    builder = Gtk.Builder.new_from_file(str(Default.peer_ui_file))
 
-    group = Adw.PreferencesGroup()
-    dialog.set_extra_child(group)
-
-    domain_row = Adw.EntryRow()
-    domain_row.set_title("Domain")
-    group.add(domain_row)
-
-    proto_row = Adw.ComboRow()
-    proto_row.set_title("Protocol")
-    proto_model = Gtk.StringList.new(["tcp", "tls", "quic"])
-    proto_row.set_model(proto_model)
-    proto_row.set_selected(0)
-    group.add(proto_row)
-
-    sni_row = Adw.EntryRow()
-    sni_row.set_title("SNI")
-    sni_row.set_visible(False)
-    group.add(sni_row)
+    dialog: Adw.AlertDialog = builder.get_object("add_peer_dialog")
+    domain_row: Adw.EntryRow = builder.get_object("domain_row")
+    proto_row: Adw.ComboRow = builder.get_object("proto_row")
+    sni_row: Adw.EntryRow = builder.get_object("sni_row")
 
     def _update_sni_row(_row, _pspec):
         sni_row.set_visible(proto_row.get_selected() == 1)
     proto_row.connect("notify::selected", _update_sni_row)
 
-    dialog.add_response("cancel", "Cancel")
-    dialog.add_response("add", "Add")
-    dialog.set_response_appearance("add", Adw.ResponseAppearance.SUGGESTED)
-    dialog.set_default_response("add")
-
     def _commit():
         domain = domain_row.get_text().strip()
         if not domain:
             return
+
         protocol = ["tcp", "tls", "quic"][proto_row.get_selected()]
         peer = f"{protocol}://{domain}"
+
         sni = sni_row.get_text().strip()
         if protocol == "tls" and sni:
             peer += f"?sni={sni}"
+
         if peer not in app.peers:
             app.peers.append(peer)
             _save_peers_to_disk(app)
             _rebuild_peers_box(app)
-        dialog.close()
 
-    def _on_response(_d, response):
-        if response == "add":
+    def _on_response(_d, response_id: str):
+        if response_id == "add":
             _commit()
 
     dialog.connect("response", _on_response)

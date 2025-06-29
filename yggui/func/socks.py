@@ -3,6 +3,25 @@ import subprocess
 import signal
 from yggui.core.common import Default
 
+def get_self_info_stak() -> tuple[str | None, str | None]:
+    cmd = [
+        Default.yggctl_path_stack,
+        "-json",
+        f"-endpoint=unix://{Default.admin_socket}",
+        "getSelf",
+    ]
+
+    try:
+        output = subprocess.check_output(
+            cmd,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+        )
+        data = json.loads(output)
+        return data.get("address"), data.get("subnet")
+    except Exception:
+        return None, None
 
 def _read_config():
     if Default.config_path.exists():

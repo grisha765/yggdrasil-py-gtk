@@ -8,7 +8,8 @@ from yggui.core.common import Default
 from yggui.func.pkexec_shell import PkexecShell
 from yggui.func.socks import (
     start_yggstack,
-    stop_yggstack
+    stop_yggstack,
+    get_self_info_stak
 )
 
 
@@ -51,10 +52,13 @@ def _get_self_info() -> tuple[str | None, str | None]:
         return None, None
 
 
-def _poll_for_addresses(app) -> None:
+def _poll_for_addresses(app, use_stack) -> None:
     deadline = time.time() + 15
     while time.time() < deadline and app.ygg_pid is not None:
-        addr, subnet = _get_self_info()
+        if use_stack:
+            addr, subnet = get_self_info_stak()
+        else:
+            addr, subnet = _get_self_info()
         if addr and subnet:
             GLib.idle_add(app._set_ip_labels, addr, subnet)
             return
@@ -101,7 +105,7 @@ def switch_switched(app, _switch, state: bool) -> None:
         app._set_ip_labels("-", "-")
         app._expand_ipv6_card(True)
 
-        Thread(target=_poll_for_addresses, args=(app,), daemon=True).start()
+        Thread(target=_poll_for_addresses, args=(app, use_stack), daemon=True).start()
 
     elif not state and app.ygg_pid is not None:
         use_stack = getattr(app, "socks_config", {}).get("enabled", False)

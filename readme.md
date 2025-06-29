@@ -15,13 +15,9 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
 ### Initial Setup
 
 1. **Clone the repository**: Clone this repository using `git clone`.
-2. **Download Dependencies**: Download the required dependencies into the Virtual Environment `venv` using `uv`.
     ```bash
     git clone https://github.com/grisha765/yggdrasil-go-gtk.git
     cd yggdrasil-go-gtk
-    python -m venv .venv
-    .venv/bin/python -m pip install uv
-    .venv/bin/python -m uv sync
     ```
 3. **Build yggdrasil**: Download the source code, build, put the binary in the root of the project.
     - Clone repo:
@@ -40,7 +36,7 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
         ```
 4. **Run the GUI**
     ```bash
-    uv run yggui
+    python3 -m yggui
     ```
 
 ### Build with Makefile
@@ -80,7 +76,6 @@ The project ships with a `Makefile` that produces an optimized, single‑file bi
 
 - Start or stop your local Yggdrasil node with a single switch.
 - Live display of the node’s IPv6 address and subnet once connected.
-- Edit or reset the `PrivateKey` used by Yggdrasil without leaving the app.
 - Add or remove peers on the fly; changes are immediately saved to `config.json`.
 - Auto‑generates a minimal config on first launch and keeps `AdminListen` in sync.
 - Self‑contained binary produced via Nuitka for easy distribution.

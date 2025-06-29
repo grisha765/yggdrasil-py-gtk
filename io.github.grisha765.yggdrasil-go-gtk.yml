@@ -10,7 +10,7 @@ finish-args:
   - --share=network
   - --own-name=io.github.grisha765.yggdrasil-go-gtk
   - --talk-name=org.freedesktop.Flatpak
-  - --filesystem=xdg-run/yggui-bin:create
+  - --filesystem=xdg-run/yggui:create
 
 add-extensions:
   org.freedesktop.Sdk.Extension.python3: {}

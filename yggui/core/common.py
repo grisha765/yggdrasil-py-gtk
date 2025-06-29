@@ -12,6 +12,7 @@ def xdg_config(app_name: str) -> Path:
 class Default:
     is_flatpak = Path('/.flatpak-info').is_file()
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
+    runtime_dir.mkdir(parents=True, exist_ok=True)
     ygg_path = shutil.which('yggdrasil')
     yggctl_path = shutil.which('yggdrasilctl')
     yggctl_path_stack = yggctl_path

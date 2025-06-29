@@ -10,14 +10,26 @@ def xdg_config(app_name: str) -> Path:
     return cfg_dir
 
 class Default:
+    is_flatpak = Path('/.flatpak-info').is_file()
+    runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
     ygg_path = shutil.which('yggdrasil')
     yggctl_path = shutil.which('yggdrasilctl')
+    yggctl_path_stack = yggctl_path
     yggstack_path = shutil.which('yggstack')
+    if is_flatpak:
+        if ygg_path:
+            dst = runtime_dir / 'yggdrasil'
+            shutil.copy2(ygg_path, dst)
+            ygg_path = str(dst)
+        if yggctl_path:
+            dst = runtime_dir / 'yggdrasilctl'
+            shutil.copy2(yggctl_path, dst)
+            yggctl_path = str(dst)
     config_path = xdg_config('yggui') / 'config.json'
-    pkexec_path = shutil.which("pkexec")
+    pkexec_path = '/usr/bin/pkexec'
     ui_file = files('yggui.ui').joinpath('ui.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
-    admin_socket = '/tmp/yggdrasil.sock'
+    admin_socket = str(runtime_dir / 'yggdrasil.sock')
     if ygg_path is None:
         raise FileNotFoundError(
             "The 'yggdrasil' executable was not found in your PATH. "
@@ -29,13 +41,6 @@ class Default:
         raise FileNotFoundError(
             "The 'yggdrasilctl' executable was not found in your PATH. "
             "Please install Yggdrasil or adjust your PATH environment "
-            "variable accordingly."
-        )
-
-    if pkexec_path is None:
-        raise FileNotFoundError(
-            "The 'pkexec' executable was not found in your PATH. "
-            "Please install PolicyKit (polkit) or adjust your PATH environment "
             "variable accordingly."
         )
 

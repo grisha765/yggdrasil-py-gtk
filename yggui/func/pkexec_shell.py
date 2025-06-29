@@ -10,7 +10,14 @@ class PkexecShell:
 
     @classmethod
     def _spawn_shell(cls) -> subprocess.Popen[str]:
-        cmd = [Default.pkexec_path, "--disable-internal-agent", "/bin/sh"]
+        cmd = []
+        if Default.is_flatpak:
+            cmd_add = ["flatpak-spawn","--host"]
+            for i in cmd_add:
+                cmd.append(i)
+        cmd_add = [Default.pkexec_path, "--disable-internal-agent", "/bin/sh"]
+        for i in cmd_add:
+            cmd.append(i)
         return subprocess.Popen(
             cmd,
             stdin=subprocess.PIPE,

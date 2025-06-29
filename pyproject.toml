@@ -11,3 +11,10 @@ dependencies = [
 [tool.pyright]
 venvPath = '.'
 venv = '.venv'
+exclude = [
+  "**/__pycache__",
+  "build/**",
+  "dist/**",
+  ".flatpak-builder/**",
+  "build-dir/**",
+]

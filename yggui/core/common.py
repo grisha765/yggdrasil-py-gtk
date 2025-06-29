@@ -1,4 +1,4 @@
-import shutil, os, subprocess
+import shutil, os, subprocess, re
 from pathlib import Path
 from importlib.resources import files
 
@@ -21,6 +21,15 @@ def xdg_config(app_name: str) -> Path:
     return cfg_dir
 
 class Default:
+    domain_re = re.compile(
+        r"""^(
+            (?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?
+            |
+            (?:\d{1,3}\.){3}\d{1,3}:\d{1,5}
+        )$""",
+        re.X,
+    )
+    sni_re = re.compile(r"^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$")
     is_flatpak = Path('/.flatpak-info').is_file()
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
     runtime_dir.mkdir(parents=True, exist_ok=True)

@@ -97,20 +97,61 @@ def _open_add_peer_dialog(app):
     proto_row: Adw.ComboRow = builder.get_object("proto_row")
     sni_row: Adw.EntryRow = builder.get_object("sni_row")
 
-    def _update_sni_row(_row, _pspec):
+    def _update_sni_row(_row=None, _pspec=None):
         sni_row.set_visible(proto_row.get_selected() == 1)
+        _validate()
+
     proto_row.connect("notify::selected", _update_sni_row)
+
+    def _validate(_row=None, _pspec=None):
+        domain = domain_row.get_text().strip()
+        sni    = sni_row.get_text().strip()
+        proto  = ["tcp", "tls", "quic"][proto_row.get_selected()]
+
+        domain_has_text = bool(domain)
+        domain_valid    = bool(Default.domain_re.fullmatch(domain))
+
+        if domain_has_text and not domain_valid:
+            domain_row.add_css_class("error")
+            domain_row.set_tooltip_text(
+                "Format: example.com:1234 or 1.2.3.4:1234"
+            )
+        else:
+            domain_row.remove_css_class("error")
+            domain_row.set_tooltip_text(None)
+
+        sni_valid = True
+        if proto == "tls":
+            sni_has_text = bool(sni)
+            sni_valid = (not sni_has_text) or bool(Default.sni_re.fullmatch(sni))
+
+            if sni_has_text and not sni_valid:
+                sni_row.add_css_class("error")
+                sni_row.set_tooltip_text("Only the domain name, e.g. example.com")
+            else:
+                sni_row.remove_css_class("error")
+                sni_row.set_tooltip_text(None)
+        else:
+            sni_row.remove_css_class("error")
+            sni_row.set_tooltip_text(None)
+
+        dialog.set_response_enabled("add", domain_valid and sni_valid)
+
+    domain_row.connect("notify::text", _validate)
+    sni_row.connect("notify::text",    _validate)
+
+    _update_sni_row()
 
     def _commit():
         domain = domain_row.get_text().strip()
         if not domain:
             return
 
-        protocol = ["tcp", "tls", "quic"][proto_row.get_selected()]
-        peer = f"{protocol}://{domain}"
+        proto = ["tcp", "tls", "quic"][proto_row.get_selected()]
+        peer  = f"{proto}://{domain}"
 
         sni = sni_row.get_text().strip()
-        if protocol == "tls" and sni:
+        if proto == "tls" and sni:
             peer += f"?sni={sni}"
 
         if peer not in app.peers:
@@ -118,13 +159,8 @@ def _open_add_peer_dialog(app):
             _save_peers_to_disk(app)
             _rebuild_peers_box(app)
 
-    def _on_response(_d, response_id: str):
-        if response_id == "add":
-            _commit()
-
-    dialog.connect("response", _on_response)
+    dialog.connect("response", lambda _d, resp: resp == "add" and _commit())
     dialog.present(app.win)
-
 
 def _remove_peer(app, peer):
     if peer in app.peers:

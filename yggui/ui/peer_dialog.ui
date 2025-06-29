@@ -23,6 +23,15 @@
             <property name="title" translatable="yes">Domain</property>
           </object>
         </child>
+        <child>
+          <object class="GtkLabel" id="domain_error">
+            <property name="visible">False</property>
+            <property name="xalign">0.0</property>
+            <property name="wrap">True</property>
+            <property name="css-classes">error</property>
+            <property name="label" translatable="yes">Format: example.com:1234 or 1.2.3.4:1234</property>
+          </object>
+        </child>
 
         <!-- Protocol -->
         <child>
@@ -46,6 +55,15 @@
           <object class="AdwEntryRow" id="sni_row">
             <property name="title" translatable="yes">SNI</property>
             <property name="visible">False</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="sni_error">
+            <property name="visible">False</property>
+            <property name="xalign">0.0</property>
+            <property name="wrap">True</property>
+            <property name="css-classes">error</property>
+            <property name="label" translatable="yes">SNI only the domain name, e.g. example.com</property>
           </object>
         </child>
 

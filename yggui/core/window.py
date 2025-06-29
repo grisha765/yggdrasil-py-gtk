@@ -63,8 +63,6 @@ class MyApp(Adw.Application):
         self.win.set_application(self)
         self.win.present()
 
-        GLib.idle_add(lambda: PkexecShell.run("# privilege escalation") or False)
-
         self.toast_overlay: Adw.ToastOverlay = builder.get_object("toast_overlay")
         if self.toast_overlay is None:
             self.toast_overlay = Adw.ToastOverlay.new()

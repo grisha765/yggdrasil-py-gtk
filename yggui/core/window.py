@@ -59,16 +59,11 @@ class MyApp(Adw.Application):
         builder = Gtk.Builder()
         builder.add_from_file(str(Default.ui_file))
 
-        self.win: Gtk.ApplicationWindow = builder.get_object("main_window")
+        self.win: Adw.ApplicationWindow = builder.get_object("main_window")
         self.win.set_application(self)
         self.win.present()
 
         self.toast_overlay: Adw.ToastOverlay = builder.get_object("toast_overlay")
-        if self.toast_overlay is None:
-            self.toast_overlay = Adw.ToastOverlay.new()
-            child = self.win.get_child()
-            self.win.set_child(self.toast_overlay)
-            self.toast_overlay.set_child(child)
 
         self.stack: Gtk.Stack = builder.get_object("stack")
         self.main_button: Gtk.Button = builder.get_object("main_button")

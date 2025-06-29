@@ -1,9 +1,5 @@
 from setuptools import setup, find_namespace_packages
 
-def parse_requirements(filename):
-    with open(filename, 'r') as f:
-        return f.read().splitlines()
-
 setup(
     name='yggdrasil-go-gtk',
     version='0.1',

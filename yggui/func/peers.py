@@ -101,9 +101,14 @@ def _open_add_peer_dialog(app):
     domain_row: Adw.EntryRow = builder.get_object("domain_row")
     proto_row: Adw.ComboRow = builder.get_object("proto_row")
     sni_row: Adw.EntryRow = builder.get_object("sni_row")
+    domain_error: Gtk.Label = builder.get_object("domain_error")
+    sni_error:    Gtk.Label = builder.get_object("sni_error")
 
     def _update_sni_row(_row=None, _pspec=None):
-        sni_row.set_visible(proto_row.get_selected() == 1)
+        tls_selected = proto_row.get_selected() == 1
+        sni_row.set_visible(tls_selected)
+        if not tls_selected:
+            sni_error.set_visible(False)
         _validate()
 
     proto_row.connect("notify::selected", _update_sni_row)
@@ -118,12 +123,10 @@ def _open_add_peer_dialog(app):
 
         if domain_has_text and not domain_valid:
             domain_row.add_css_class("error")
-            domain_row.set_tooltip_text(
-                "Format: example.com:1234 or 1.2.3.4:1234"
-            )
+            domain_error.set_visible(True)
         else:
             domain_row.remove_css_class("error")
-            domain_row.set_tooltip_text(None)
+            domain_error.set_visible(False)
 
         sni_valid = True
         if proto == "tls":
@@ -132,13 +135,13 @@ def _open_add_peer_dialog(app):
 
             if sni_has_text and not sni_valid:
                 sni_row.add_css_class("error")
-                sni_row.set_tooltip_text("Only the domain name, e.g. example.com")
+                sni_error.set_visible(True)
             else:
                 sni_row.remove_css_class("error")
-                sni_row.set_tooltip_text(None)
+                sni_error.set_visible(False)
         else:
             sni_row.remove_css_class("error")
-            sni_row.set_tooltip_text(None)
+            sni_error.set_visible(False)
 
         dialog.set_response_enabled("add", domain_valid and sni_valid)
 

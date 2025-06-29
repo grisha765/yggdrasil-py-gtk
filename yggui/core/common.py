@@ -1,6 +1,17 @@
-import shutil, os
+import shutil, os, subprocess
 from pathlib import Path
 from importlib.resources import files
+
+def which_in_flatpak(cmd: str) -> str | None:
+    result = subprocess.run(
+        ["flatpak-spawn", "--host", "command", "-v", cmd],
+        capture_output=True,
+        text=True,
+        check=False
+    )
+    if result.returncode == 0:
+        return result.stdout.strip()
+    return None
 
 def xdg_config(app_name: str) -> Path:
     default_base = Path.home() / ".config"
@@ -17,7 +28,9 @@ class Default:
     yggctl_path = shutil.which('yggdrasilctl')
     yggctl_path_stack = yggctl_path
     yggstack_path = shutil.which('yggstack')
+    pkexec_path = shutil.which('pkexec')
     if is_flatpak:
+        pkexec_path = which_in_flatpak('pkexec')
         if ygg_path:
             dst = runtime_dir / 'yggdrasil'
             shutil.copy2(ygg_path, dst)
@@ -27,7 +40,6 @@ class Default:
             shutil.copy2(yggctl_path, dst)
             yggctl_path = str(dst)
     config_path = xdg_config('yggui') / 'config.json'
-    pkexec_path = '/usr/bin/pkexec'
     ui_file = files('yggui.ui').joinpath('ui.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
     admin_socket = str(runtime_dir / 'yggdrasil.sock')

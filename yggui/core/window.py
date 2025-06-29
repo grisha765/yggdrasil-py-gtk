@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw, Gdk, Gio, GLib  # type: ignore
+from gi.repository import Gtk, Adw, Gdk, Gio # type: ignore
 
 from yggui.core.common import Default
 from yggui.func.config import create_config
@@ -110,6 +110,11 @@ class MyApp(Adw.Application):
             self.subnet_row,
             lambda: self.subnet_row.get_subtitle(),
         )
+
+        if Default.pkexec_path is None:
+            self.ygg_switch.set_sensitive(False)
+            self.ygg_card.set_sensitive(False)
+            self.ygg_card.set_subtitle("Polkit not found")
 
         if Default.ygg_path is None:
             self.ygg_switch.set_sensitive(False)

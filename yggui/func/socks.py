@@ -82,6 +82,11 @@ def socks_switch_toggled(app, _switch, state: bool):
     app.socks_card.set_expanded(state)
     _update_visibility(app, state)
     app.socks_config["enabled"] = state
+    if Default.pkexec_path is None:
+        app.ygg_switch.set_sensitive(state)
+        app.ygg_card.set_sensitive(state)
+        subtitle = "Stopped" if state else "Polkit not found"
+        app.ygg_card.set_subtitle(subtitle)
 
 
 def listen_changed(app, _row, _pspec):

@@ -30,14 +30,18 @@ def load_config(app):
     cfg = _read_config()
     app.peers = cfg.get("Peers", [])
     _rebuild_peers_box(app)
-    add_btn = getattr(app, "add_peer_btn", None)
-    if add_btn is None:
-        add_btn = app.peers_box.get_parent().get_last_child()
-        app.add_peer_btn = add_btn
-    add_btn.connect("clicked", lambda _b: _open_add_peer_dialog(app))
+    if not getattr(app, "_add_row_connected", False):
+        def _on_row_activated(_listbox, row):
+            if row is app.add_peer_btn:
+                _open_add_peer_dialog(app)
+        app.peers_box.connect("row-activated", _on_row_activated)
+        app._add_row_connected = True
 
 
 def _rebuild_peers_box(app):
+    add_row = app.add_peer_btn
+    if add_row.get_parent():
+        app.peers_box.remove(add_row)
     child = app.peers_box.get_first_child()
     while child:
         nxt = child.get_next_sibling()
@@ -80,6 +84,7 @@ def _rebuild_peers_box(app):
 
         trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
+    app.peers_box.append(add_row)
 
     count = len(app.peers)
     if count == 0:

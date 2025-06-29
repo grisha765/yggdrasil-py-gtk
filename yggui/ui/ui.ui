@@ -5,7 +5,7 @@
 
   <object class="GtkApplicationWindow" id="main_window">
     <property name="accessible-role">meter</property>
-    <property name="decorated">False</property>
+    <property name="decorated">True</property>
     <property name="title"> </property>
 
     <child>

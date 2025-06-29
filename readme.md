@@ -24,7 +24,12 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
     .venv/bin/python -m uv sync
     ```
 
-3. **Build yggdrasil**: Download the source code, build, put the binary in the root of the project.
+4. **Download Dependencies in distro**:
+    ```bash
+    sudo dnf install -y gtk4 libadwaita python3-gobject
+    ```
+
+5. **Build yggdrasil**: Download the source code, build, put the binary in the root of the project.
     - Clone repo:
         ```bash
         git clone https://github.com/yggdrasil-network/yggdrasil-go.git
@@ -40,7 +45,7 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
         mv ./yggdrasilctl $HOME/.local/bin/
         ```
 
-4. **Run the GUI**:
+6. **Run the GUI**:
     ```bash
     .venv/bin/python -m yggui
     ```

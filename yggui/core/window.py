@@ -159,9 +159,7 @@ class MyApp(Adw.Application):
         self._update_nav_buttons(self.main_button)
 
     def on_shutdown(self, _app):
-        if self.ygg_pid is not None and not getattr(
-            self, "socks_config", {}
-        ).get("enabled", False):
+        if self.ygg_pid is not None:
             stop_yggdrasil(self.ygg_pid)
             self.ygg_pid = None
         if self.socks_proc is not None:
@@ -178,9 +176,7 @@ class MyApp(Adw.Application):
         widget.add_controller(gesture)
 
     def _on_sigint(self):
-        if self.ygg_pid is not None and not getattr(
-            self, "socks_config", {}
-        ).get("enabled", False):
+        if self.ygg_pid is not None:
             stop_yggdrasil(self.ygg_pid)
             self.ygg_pid = None
         if self.socks_proc is not None:

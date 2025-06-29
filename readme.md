@@ -1,8 +1,16 @@
 # yggdrasil-go-gtk
 Graphical interface for yggdrasil on gtk4 + libadwaita
 
-> **Binary releases**
-> Download the latest self‑contained executable from the [GitHub releases page](https://github.com/grisha765/yggdrasil-go-gtk/releases).
+### Binary releases
+
+- Download the latest self‑contained executable from the [GitHub releases page](https://github.com/grisha765/yggdrasil-go-gtk/releases).
+- Download the stable releases from flatpak:
+    ```bash
+    flatpak remote-add --user yggdrasil-go-gtk https://grisha765.github.io/yggdrasil-go-gtk/grisha765.flatpakrepo
+    ```
+    ```bash
+    flatpak install --user yggdrasil-go-gtk io.github.grisha765.yggdrasil-go-gtk
+    ```
 
 ### Initial Setup
 

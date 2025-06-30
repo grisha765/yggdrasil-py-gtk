@@ -54,7 +54,9 @@ def _get_self_info() -> tuple[str | None, str | None]:
 
 def _poll_for_addresses(app, use_stack) -> None:
     deadline = time.time() + 15
-    while time.time() < deadline and app.ygg_pid is not None:
+    while time.time() < deadline and (
+            app.ygg_pid is not None or app.socks_proc is not None
+    ):
         if use_stack:
             addr, subnet = get_self_info_stak()
         else:
@@ -81,7 +83,7 @@ def stop_yggdrasil(pid: int) -> None:
 
 def switch_switched(app, _switch, state: bool) -> None:
     use_stack = getattr(app, "socks_config", {}).get("enabled", False)
-    if state and app.ygg_pid is None:
+    if state and app.ygg_pid is None and app.socks_proc is None:
         try:
             if use_stack:
                 proc = start_yggstack(
@@ -90,7 +92,6 @@ def switch_switched(app, _switch, state: bool) -> None:
                     app.socks_config.get("dns_port", "53"),
                 )
                 app.socks_proc = proc
-                app.ygg_pid = proc.pid
             else:
                 app.ygg_pid = start_yggdrasil()
         except Exception as exc:
@@ -107,15 +108,15 @@ def switch_switched(app, _switch, state: bool) -> None:
 
         Thread(target=_poll_for_addresses, args=(app, use_stack), daemon=True).start()
 
-    elif not state and app.ygg_pid is not None:
+    elif not state and (app.ygg_pid is not None or app.socks_proc is not None):
         use_stack = getattr(app, "socks_config", {}).get("enabled", False)
-        if use_stack and getattr(app, "socks_proc", None) is not None:
+        if app.socks_proc is not None:
             stop_yggstack(app.socks_proc)
             app.socks_proc = None
-        else:
+        elif app.ygg_pid is not None:
             stop_yggdrasil(app.ygg_pid)
+            app.ygg_pid = None
         app.switch_row.set_subtitle("Stopped")
-        app.ygg_pid = None
         app._set_ip_labels("-", "-")
         app._expand_ipv6_card(False)
 

@@ -88,14 +88,14 @@ class MyApp(Adw.Application):
         self._expand_ipv6_card(False)
 
         self.peers_box: Gtk.Box = builder.get_object("peers_box")
-        self.add_peer_btn: Adw.ButtonRow = builder.get_object("add_peer_btn")
+        self.add_peer_btn: Gtk.Button = builder.get_object("add_peer_btn")
 
         self.private_key_row: Adw.EntryRow = builder.get_object("private_key_row")
         self.private_key_regen_icon: Gtk.Button = builder.get_object(
             "private_key_regen_icon"
         )
 
-        self.peers_card: Adw.ExpanderRow = builder.get_object("peers_card")
+        self.peers_group: Adw.PreferencesGroup = builder.get_object("peers_group")
 
         self.socks_card: Adw.ExpanderRow = builder.get_object("socks_card")
         self.socks_switch: Gtk.Switch = builder.get_object("socks_switch")

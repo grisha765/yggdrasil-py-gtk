@@ -1,5 +1,5 @@
 import json
-from gi.repository import Gtk, Adw  # type: ignore
+from gi.repository import Gtk, Adw # type: ignore
 from urllib.parse import urlparse, parse_qs
 
 from yggui.core.common import Default
@@ -30,18 +30,12 @@ def load_config(app):
     cfg = _read_config()
     app.peers = cfg.get("Peers", [])
     _rebuild_peers_box(app)
-    if not getattr(app, "_add_row_connected", False):
-        def _on_row_activated(_listbox, row):
-            if row is app.add_peer_btn:
-                _open_add_peer_dialog(app)
-        app.peers_box.connect("row-activated", _on_row_activated)
-        app._add_row_connected = True
+    if not getattr(app, "_add_btn_connected", False):
+        app.add_peer_btn.connect("clicked", lambda _b: _open_add_peer_dialog(app))
+        app._add_btn_connected = True
 
 
 def _rebuild_peers_box(app):
-    add_row = app.add_peer_btn
-    if add_row.get_parent():
-        app.peers_box.remove(add_row)
     child = app.peers_box.get_first_child()
     while child:
         nxt = child.get_next_sibling()
@@ -84,14 +78,13 @@ def _rebuild_peers_box(app):
 
         trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
-    app.peers_box.append(add_row)
 
     count = len(app.peers)
     if count == 0:
-        app.peers_card.set_subtitle("No peers configured")
+        app.peers_group.set_description("No peers configured")
     else:
         plural = "s" if count != 1 else ""
-        app.peers_card.set_subtitle(f"{count} peer node{plural}")
+        app.peers_group.set_description(f"{count} peer node{plural}")
 
 
 def _open_add_peer_dialog(app):

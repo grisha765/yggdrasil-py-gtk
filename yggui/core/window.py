@@ -6,24 +6,21 @@ import gi
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
 
-from gi.repository import Gtk, Adw, Gdk, Gio # type: ignore
+from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
 from yggui.core.common import Default
 from yggui.func.config import create_config
 from yggui.func.peers import load_config
 from yggui.func.pkexec_shell import PkexecShell
 from yggui.func.private_key import load_private_key
-from yggui.func.ygg import (
-        switch_switched,
-        stop_yggdrasil
-)
+from yggui.func.ygg import switch_switched, stop_yggdrasil
 from yggui.func.socks import (
     load_socks_config,
     socks_switch_toggled,
     listen_changed,
     ip_changed,
     port_changed,
-    stop_yggstack
+    stop_yggstack,
 )
 
 
@@ -57,7 +54,10 @@ class MyApp(Adw.Application):
 
     def on_activate(self, _app):
         builder = Gtk.Builder()
+
         builder.add_from_file(str(Default.ui_file))
+        builder.add_from_file(str(Default.ui_main_file))
+        builder.add_from_file(str(Default.ui_settings_file))
 
         self.win: Adw.ApplicationWindow = builder.get_object("main_window")
         self.win.set_application(self)
@@ -65,11 +65,16 @@ class MyApp(Adw.Application):
 
         self.toast_overlay: Adw.ToastOverlay = builder.get_object("toast_overlay")
 
-        self.stack: Gtk.Stack = builder.get_object("stack")
-        self.main_button: Gtk.Button = builder.get_object("main_button")
-        self.settings_button: Gtk.Button = builder.get_object("settings_button")
+        self.stack: Adw.ViewStack = builder.get_object("stack")
+
         self.main_box = builder.get_object("main")
         self.settings_box = builder.get_object("settings")
+
+        page_main = self.stack.add_titled(self.main_box, "main", "Main")
+        page_main.set_icon_name("go-home-symbolic")
+
+        page_settings = self.stack.add_titled(self.settings_box, "settings", "Settings")
+        page_settings.set_icon_name("emblem-system-symbolic")
 
         self.ygg_card: Adw.ExpanderRow = builder.get_object("ygg_card")
         self.ygg_switch: Gtk.Switch = builder.get_object("ygg_switch")
@@ -101,16 +106,12 @@ class MyApp(Adw.Application):
         self.socks_switch: Gtk.Switch = builder.get_object("socks_switch")
         self.socks_listen_row: Adw.EntryRow = builder.get_object("socks_listen_row")
         self.socks_dns_ip_row: Adw.EntryRow = builder.get_object("socks_dns_ip_row")
-        self.socks_dns_port_row: Adw.EntryRow = builder.get_object("socks_dns_port_row")
+        self.socks_dns_port_row: Adw.EntryRow = builder.get_object(
+            "socks_dns_port_row"
+        )
 
-        self._make_row_clickable(
-            self.address_row,
-            lambda: self.address_row.get_subtitle(),
-        )
-        self._make_row_clickable(
-            self.subnet_row,
-            lambda: self.subnet_row.get_subtitle(),
-        )
+        self._make_row_clickable(self.address_row, lambda: self.address_row.get_subtitle())
+        self._make_row_clickable(self.subnet_row, lambda: self.subnet_row.get_subtitle())
 
         if Default.pkexec_path is None:
             self.ygg_switch.set_sensitive(False)
@@ -135,34 +136,25 @@ class MyApp(Adw.Application):
             else:
                 self.socks_switch.connect(
                     "notify::active",
-                    lambda sw, _pspec: socks_switch_toggled(
-                        self, sw, sw.get_active()
-                    ),
+                    lambda sw, _pspec: socks_switch_toggled(self, sw, sw.get_active()),
                 )
-                self.socks_card.connect(
-                    "notify::expanded", self._socks_card_expanded
-                )
+                self.socks_card.connect("notify::expanded", self._socks_card_expanded)
                 self.socks_listen_row.connect(
-                    "notify::text",
-                    lambda r, _pspec: listen_changed(self, r, _pspec),
+                    "notify::text", lambda r, _pspec: listen_changed(self, r, _pspec)
                 )
                 self.socks_dns_ip_row.connect(
-                    "notify::text",
-                    lambda r, _pspec: ip_changed(self, r, _pspec),
+                    "notify::text", lambda r, _pspec: ip_changed(self, r, _pspec)
                 )
                 self.socks_dns_port_row.connect(
-                    "notify::text",
-                    lambda r, _pspec: port_changed(self, r, _pspec),
+                    "notify::text", lambda r, _pspec: port_changed(self, r, _pspec)
                 )
                 load_socks_config(self)
 
         load_config(self)
         load_private_key(self)
 
-        self.main_button.connect("clicked", self.switch_to_main)
-        self.settings_button.connect("clicked", self.switch_to_settings)
+
         self.stack.set_visible_child(self.main_box)
-        self._update_nav_buttons(self.main_button)
 
     def on_shutdown(self, _app):
         if self.ygg_pid is not None:
@@ -176,8 +168,7 @@ class MyApp(Adw.Application):
     def _make_row_clickable(self, widget: Gtk.Widget, get_text):
         gesture = Gtk.GestureClick.new()
         gesture.connect(
-            "released",
-            lambda _g, _n, _x, _y: self._copy_to_clipboard(get_text()),
+            "released", lambda _g, _n, _x, _y: self._copy_to_clipboard(get_text())
         )
         widget.add_controller(gesture)
 
@@ -209,11 +200,6 @@ class MyApp(Adw.Application):
         if self.socks_switch.get_active() != expanded:
             self.socks_switch.set_active(expanded)
 
-    def _update_nav_buttons(self, active_btn: Gtk.Button) -> None:
-        for btn in (self.main_button, self.settings_button):
-            btn.remove_css_class("suggested-action")
-        active_btn.add_css_class("suggested-action")
-
     def _copy_to_clipboard(self, text: str) -> None:
         if not text or text == "-":
             return
@@ -221,14 +207,6 @@ class MyApp(Adw.Application):
         clipboard.set(text)
         toast = Adw.Toast.new("Copied to clipboard")
         self.toast_overlay.add_toast(toast)
-
-    def switch_to_main(self, _button):
-        self.stack.set_visible_child(self.main_box)
-        self._update_nav_buttons(self.main_button)
-
-    def switch_to_settings(self, _button):
-        self.stack.set_visible_child(self.settings_box)
-        self._update_nav_buttons(self.settings_button)
 
 
 if __name__ == "__main__":

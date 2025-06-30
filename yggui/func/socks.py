@@ -3,6 +3,7 @@ import subprocess
 import signal
 from yggui.core.common import Default
 
+
 def get_self_info_stak() -> tuple[str | None, str | None]:
     cmd = [
         Default.yggctl_path_stack,
@@ -23,6 +24,7 @@ def get_self_info_stak() -> tuple[str | None, str | None]:
     except Exception:
         return None, None
 
+
 def _read_config():
     if Default.config_path.exists():
         try:
@@ -42,12 +44,6 @@ def _save_param(key: str, value):
     cfg = _read_config()
     cfg[key] = value
     _write_config(cfg)
-
-
-def _update_visibility(app, enabled: bool):
-    app.socks_listen_row.set_visible(enabled)
-    app.socks_dns_ip_row.set_visible(enabled)
-    app.socks_dns_port_row.set_visible(enabled)
 
 
 def load_socks_config(app):
@@ -73,14 +69,12 @@ def load_socks_config(app):
     app.socks_dns_ip_row.set_text(dns_ip)
     app.socks_dns_port_row.set_text(dns_port)
     app.socks_card.set_expanded(enabled)
-    _update_visibility(app, enabled)
 
 
 def socks_switch_toggled(app, _switch, state: bool):
     _save_param("yggstack-enable", state)
     app.socks_card.set_subtitle("Enabled" if state else "Disabled")
     app.socks_card.set_expanded(state)
-    _update_visibility(app, state)
     app.socks_config["enabled"] = state
     if Default.pkexec_path is None:
         app.ygg_switch.set_sensitive(state)

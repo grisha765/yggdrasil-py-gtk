@@ -1,5 +1,5 @@
 # yggdrasil-go-gtk
-Graphical interface for yggdrasil on gtk4 + libadwaita
+A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay‑network node (and optional Yggstack SOCKS proxy) on Linux. Yggdrasil‑go‑gtk wraps the official yggdrasil and yggdrasilctl binaries with an ergonomic UI that follows GNOME design guidelines. It can operate both on bare‑metal and inside a Flatpak sandbox, automatically copying host binaries into a private runtime directory when needed.
 
 ### Finished flatpak assemblies
 
@@ -64,8 +64,11 @@ Graphical interface for yggdrasil on gtk4 + libadwaita
 
 ## Features
 
-- Start or stop your local Yggdrasil node with a single switch.
-- Live display of the node’s IPv6 address and subnet once connected.
-- Add or remove peers on the fly; changes are immediately saved to `config.json`.
-- Auto‑generates a minimal config on first launch and keeps `AdminListen` in sync.
-- Modern GTK 4 + libadwaita interface that integrates with GNOME.
+- **One‑click start/stop** – toggles the daemon with polkit (pkexec) or by launching Yggstack when the SOCKS proxy is enabled.
+- **Live status panel** – polls the admin socket and shows the current IPv6 address and /64 subnet.
+- **Peer management** – add/remove peers with validation for TCP/TLS/QUIC, optional SNI, and instant persistence to config.json.
+- **SOCKS5 proxy & DNS forwarder** – expose Yggdrasil traffic through Yggstack with user‑defined listen address and nameserver.
+- **Private‑key tooling** – view, edit or regenerate the node’s PrivateKey in‑place.
+- **Clipboard helpers** – copy address/subnet rows with a single click.
+- **Flatpak aware** – transparently moves required binaries into the sandbox and invokes host shell commands via flatpak‑spawn.
+- **Failsafe exit** – gracefully stops child processes on SIGINT or application shutdown.

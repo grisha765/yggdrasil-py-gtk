@@ -1,6 +1,13 @@
 name: Build and Push Flatpak manifest
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'yggui/**'
+      - 'xdg/**'
+      - 'io.github.grisha765.yggdrasil-go-gtk.yml'
   workflow_dispatch:
 
 env:

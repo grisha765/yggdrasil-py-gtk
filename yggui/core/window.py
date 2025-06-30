@@ -154,10 +154,10 @@ class MyApp(Adw.Application):
                     "notify::text",
                     lambda r, _pspec: port_changed(self, r, _pspec),
                 )
+                load_socks_config(self)
 
         load_config(self)
         load_private_key(self)
-        load_socks_config(self)
 
         self.main_button.connect("clicked", self.switch_to_main)
         self.settings_button.connect("clicked", self.switch_to_settings)

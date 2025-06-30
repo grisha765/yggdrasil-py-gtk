@@ -50,6 +50,8 @@ class Default:
             yggctl_path = str(dst)
     config_path = xdg_config('yggui') / 'config.json'
     ui_file = files('yggui.ui').joinpath('ui.ui')
+    ui_main_file = files('yggui.ui').joinpath('main.ui')
+    ui_settings_file = files('yggui.ui').joinpath('settings.ui')
     peer_ui_file = files('yggui.ui').joinpath('peer_dialog.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
     admin_socket = str(runtime_dir / 'yggdrasil.sock')

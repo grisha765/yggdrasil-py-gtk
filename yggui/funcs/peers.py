@@ -1,66 +1,27 @@
 import json, time
-import subprocess
 from threading import Thread
 
 from gi.repository import Gtk, Adw, GLib # type: ignore
 from urllib.parse import urlparse, parse_qs
 
+from yggui.exec.get_info import get_peers_status
+
 from yggui.core.common import Default
 
 
-def _normalize_peer(peer: str) -> str:
-    return peer.split("?", 1)[0]
-
-
-def _get_peers_status() -> dict[str, bool]:
-    cmd: list[str] = []
-    if Default.is_flatpak:
-        cmd.extend(["flatpak-spawn", "--host"])
-    cmd.extend(
-        [
-            Default.yggctl_path or "yggdrasilctl",
-            "-json",
-            f"-endpoint=unix://{Default.admin_socket}",
-            "getPeers",
-        ]
-    )
-
-    def _parse_output(output: str) -> dict[str, bool]:
-        data = json.loads(output)
-        status: dict[str, bool] = {}
-        for entry in data.get("peers", []):
-            remote = entry.get("remote", "")
-            if remote:
-                status[_normalize_peer(remote)] = bool(entry.get("up"))
-        return status
-
-    try:
-        output = subprocess.check_output(
-            cmd, stderr=subprocess.DEVNULL, text=True, timeout=5
-        )
-        return _parse_output(output)
-    except Exception:
-        try:
-            from yggui.func.pkexec_shell import PkexecShell
-
-            output = PkexecShell.run_capture(" ".join(cmd))
-            return _parse_output(output)
-        except Exception:
-            return {}
-
-
-def _apply_status(app, status: dict[str, bool]) -> None:
+def apply_status(app, status: dict[str, bool]) -> None:
     for peer, (icon, default_icon) in getattr(app, "_peer_icons", {}).items():
         icon.set_from_icon_name(default_icon if status.get(peer, False) else 'network-error-symbolic')
 
 
 def update_peer_status(app) -> bool:
-    if getattr(app, "ygg_pid", None) is None and getattr(app, "socks_proc", None) is None:
+    if getattr(app, "ygg_pid", None) is None and getattr(app, "socks_pid", None) is None:
         clear_peer_status(app)
         return False
 
-    status = _get_peers_status()
-    GLib.idle_add(_apply_status, app, status)
+    use_socks = getattr(app, "socks_config", {}).get("enabled", False)
+    status = get_peers_status(use_socks)
+    GLib.idle_add(apply_status, app, status)
 
     if status or getattr(app, "_peer_status_thread_running", False):
         return False
@@ -71,9 +32,9 @@ def update_peer_status(app) -> bool:
             time.time() < deadline
             and not getattr(app, "_stop_peer_status_thread", False)
         ):
-            st = _get_peers_status()
+            st = get_peers_status(use_socks)
             if st:
-                GLib.idle_add(_apply_status, app, st)
+                GLib.idle_add(apply_status, app, st)
                 break
             time.sleep(1)
 
@@ -94,7 +55,7 @@ def clear_peer_status(app) -> bool:
     return False
 
 
-def _read_config():
+def read_config():
     if Default.config_path.exists():
         try:
             with open(Default.config_path, "r", encoding="utf-8") as handle:
@@ -104,27 +65,18 @@ def _read_config():
     return {}
 
 
-def _write_config(cfg):
+def write_config(cfg):
     with open(Default.config_path, "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
 
 
-def _save_peers_to_disk(app):
-    cfg = _read_config()
+def save_peers_to_disk(app):
+    cfg = read_config()
     cfg["Peers"] = app.peers
-    _write_config(cfg)
+    write_config(cfg)
 
 
-def load_config(app):
-    cfg = _read_config()
-    app.peers = cfg.get("Peers", [])
-    _rebuild_peers_box(app)
-    if not getattr(app, "_add_btn_connected", False):
-        app.add_peer_btn.connect("clicked", lambda _b: _open_add_peer_dialog(app))
-        app._add_btn_connected = True
-
-
-def _rebuild_peers_box(app):
+def rebuild_peers_box(app):
     child = app.peers_box.get_first_child()
     while child:
         nxt = child.get_next_sibling()
@@ -168,11 +120,11 @@ def _rebuild_peers_box(app):
         trash_btn.add_css_class("flat")
         row.add_suffix(trash_btn)
 
-        trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
+        trash_btn.connect("clicked", lambda _b, p=peer: remove_peer(app, p))
         app.peers_box.append(row)
 
-        app._peer_rows[_normalize_peer(peer)] = row
-        app._peer_icons[_normalize_peer(peer)] = (icon, icon_name)
+        app._peer_rows[peer.split("?", 1)[0]] = row
+        app._peer_icons[peer.split("?", 1)[0]] = (icon, icon_name)
 
     count = len(app.peers)
     if count == 0:
@@ -182,7 +134,7 @@ def _rebuild_peers_box(app):
         app.peers_group.set_description(f"{count} peer node{plural}")
 
 
-def _open_add_peer_dialog(app):
+def open_add_peer_dialog(app):
     builder = Gtk.Builder.new_from_file(str(Default.peer_ui_file))
 
     dialog: Adw.AlertDialog = builder.get_object("add_peer_dialog")
@@ -252,18 +204,28 @@ def _open_add_peer_dialog(app):
 
         if peer not in app.peers:
             app.peers.append(peer)
-            _save_peers_to_disk(app)
-            _rebuild_peers_box(app)
+            save_peers_to_disk(app)
+            rebuild_peers_box(app)
             update_peer_status(app)
 
     dialog.connect("response", lambda _d, resp: resp == "add" and _commit())
     dialog.present(app.win)
 
-def _remove_peer(app, peer):
+
+def load_config(app):
+    cfg = read_config()
+    app.peers = cfg.get("Peers", [])
+    rebuild_peers_box(app)
+    if not getattr(app, "_add_btn_connected", False):
+        app.add_peer_btn.connect("clicked", lambda _b: open_add_peer_dialog(app))
+        app._add_btn_connected = True
+
+
+def remove_peer(app, peer):
     if peer in app.peers:
         app.peers.remove(peer)
-        _save_peers_to_disk(app)
-        _rebuild_peers_box(app)
+        save_peers_to_disk(app)
+        rebuild_peers_box(app)
         update_peer_status(app)
 
 

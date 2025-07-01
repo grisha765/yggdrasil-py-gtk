@@ -3,7 +3,7 @@ import subprocess, json
 from yggui.core.common import Default
 
 
-def _ensure_admin_socket_is_set() -> None:
+def ensure_admin_socket_is_set() -> None:
     try:
         with open(Default.config_path, "r+", encoding="utf-8") as handle:
             cfg = json.load(handle)
@@ -24,7 +24,7 @@ def create_config():
         with open(str(Default.config_path), "w") as f:
             cmd = [Default.ygg_path, "-genconf", "-json"]
             subprocess.run(cmd, stdout=f, check=True)
-    _ensure_admin_socket_is_set()
+    ensure_admin_socket_is_set()
 
 
 if __name__ == "__main__":

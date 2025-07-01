@@ -1,5 +1,4 @@
 import signal
-import subprocess
 
 import gi
 
@@ -9,19 +8,20 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
 from yggui.core.common import Default
-from yggui.func.config import create_config
-from yggui.func.peers import load_config
-from yggui.func.pkexec_shell import PkexecShell
-from yggui.func.private_key import load_private_key
-from yggui.func.ygg import switch_switched, stop_yggdrasil
-from yggui.func.socks import (
+from yggui.funcs.config import create_config
+from yggui.funcs.peers import load_config
+from yggui.exec.pkexec_shell import PkexecShell
+from yggui.exec.shell import Shell
+from yggui.funcs.private_key import load_private_key
+from yggui.funcs.ygg import switch_switched
+from yggui.funcs.socks import (
     load_socks_config,
     socks_switch_toggled,
     listen_changed,
     ip_changed,
     port_changed,
-    stop_yggstack,
 )
+from yggui.exec.toggle import stop_ygg
 
 
 class MyApp(Adw.Application):
@@ -38,7 +38,7 @@ class MyApp(Adw.Application):
         self.GOrientation = Gtk.Orientation
 
         self.ygg_pid: int | None = None
-        self.socks_proc: subprocess.Popen | None = None
+        self.socks_pid: int | None = None
         self.socks_config: dict = {}
         self.peers: list[str] = []
         self.current_private_key = ""
@@ -157,13 +157,21 @@ class MyApp(Adw.Application):
         self.stack.set_visible_child(self.main_box)
 
     def on_shutdown(self, _app):
-        if self.ygg_pid is not None:
-            stop_yggdrasil(self.ygg_pid)
-            self.ygg_pid = None
-        if self.socks_proc is not None:
-            stop_yggstack(self.socks_proc)
-            self.socks_proc = None
-        PkexecShell.stop()
+        runner = PkexecShell if self.ygg_pid else Shell
+        pid = self.ygg_pid or self.socks_pid
+        use_socks = pid is self.socks_pid
+        self.ygg_pid = self.socks_pid = None
+        if pid:
+            stop_ygg(use_socks, pid)
+        runner.stop()
+
+    def _on_sigint(self):
+        pid = self.ygg_pid or self.socks_pid
+        use_socks = pid is self.socks_pid
+        self.ygg_pid = self.socks_pid = None
+        if pid:
+            stop_ygg(use_socks, pid)
+        self.quit()
 
     def _make_row_clickable(self, widget: Gtk.Widget, get_text):
         gesture = Gtk.GestureClick.new()
@@ -171,15 +179,6 @@ class MyApp(Adw.Application):
             "released", lambda _g, _n, _x, _y: self._copy_to_clipboard(get_text())
         )
         widget.add_controller(gesture)
-
-    def _on_sigint(self):
-        if self.ygg_pid is not None:
-            stop_yggdrasil(self.ygg_pid)
-            self.ygg_pid = None
-        if self.socks_proc is not None:
-            stop_yggstack(self.socks_proc)
-            self.socks_proc = None
-        self.quit()
 
     def _set_ip_labels(self, address: str, subnet: str) -> None:
         self.address_row.set_subtitle(address)

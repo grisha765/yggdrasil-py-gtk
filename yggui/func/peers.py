@@ -1,8 +1,96 @@
-import json
-from gi.repository import Gtk, Adw # type: ignore
+import json, time
+import subprocess
+from threading import Thread
+
+from gi.repository import Gtk, Adw, GLib # type: ignore
 from urllib.parse import urlparse, parse_qs
 
 from yggui.core.common import Default
+
+
+def _normalize_peer(peer: str) -> str:
+    return peer.split("?", 1)[0]
+
+
+def _get_peers_status() -> dict[str, bool]:
+    cmd: list[str] = []
+    if Default.is_flatpak:
+        cmd.extend(["flatpak-spawn", "--host"])
+    cmd.extend(
+        [
+            Default.yggctl_path or "yggdrasilctl",
+            "-json",
+            f"-endpoint=unix://{Default.admin_socket}",
+            "getPeers",
+        ]
+    )
+
+    def _parse_output(output: str) -> dict[str, bool]:
+        data = json.loads(output)
+        status: dict[str, bool] = {}
+        for entry in data.get("peers", []):
+            remote = entry.get("remote", "")
+            if remote:
+                status[_normalize_peer(remote)] = bool(entry.get("up"))
+        return status
+
+    try:
+        output = subprocess.check_output(
+            cmd, stderr=subprocess.DEVNULL, text=True, timeout=5
+        )
+        return _parse_output(output)
+    except Exception:
+        try:
+            from yggui.func.pkexec_shell import PkexecShell
+
+            output = PkexecShell.run_capture(" ".join(cmd))
+            return _parse_output(output)
+        except Exception:
+            return {}
+
+
+def _apply_status(app, status: dict[str, bool]) -> None:
+    for peer, row in getattr(app, "_peer_rows", {}).items():
+        row.remove_css_class("error")
+        row.remove_css_class("success")
+        up = status.get(peer, False)
+        row.add_css_class("success" if up else "error")
+
+
+def update_peer_status(app) -> bool:
+    status = _get_peers_status()
+    GLib.idle_add(_apply_status, app, status)
+
+    if status or getattr(app, "_peer_status_thread_running", False):
+        return False
+
+    def _poll_until_found() -> None:
+        deadline = time.time() + 15
+        while (
+            time.time() < deadline
+            and not getattr(app, "_stop_peer_status_thread", False)
+        ):
+            st = _get_peers_status()
+            if st:
+                GLib.idle_add(_apply_status, app, st)
+                break
+            time.sleep(1)
+
+        GLib.idle_add(setattr, app, "_peer_status_thread_running", False)
+
+    app._stop_peer_status_thread = False
+    app._peer_status_thread_running = True
+    Thread(target=_poll_until_found, daemon=True).start()
+    return False
+
+
+def clear_peer_status(app) -> bool:
+    for row in getattr(app, "_peer_rows", {}).values():
+        row.remove_css_class("error")
+        row.remove_css_class("success")
+    app._stop_peer_status_thread = True
+    app._peer_status_thread_running = False
+    return False
 
 
 def _read_config():
@@ -42,6 +130,8 @@ def _rebuild_peers_box(app):
         app.peers_box.remove(child)
         child = nxt
 
+    app._peer_rows = {}
+
     for peer in sorted(app.peers):
         parsed = urlparse(peer)
         proto = parsed.scheme
@@ -78,6 +168,8 @@ def _rebuild_peers_box(app):
 
         trash_btn.connect("clicked", lambda _b, p=peer: _remove_peer(app, p))
         app.peers_box.append(row)
+
+        app._peer_rows[_normalize_peer(peer)] = row
 
     count = len(app.peers)
     if count == 0:
@@ -168,6 +260,7 @@ def _remove_peer(app, peer):
         app.peers.remove(peer)
         _save_peers_to_disk(app)
         _rebuild_peers_box(app)
+        update_peer_status(app)
 
 
 if __name__ == "__main__":

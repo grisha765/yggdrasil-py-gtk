@@ -11,6 +11,10 @@ from yggui.func.socks import (
     stop_yggstack,
     get_self_info_stak
 )
+from yggui.func.peers import (
+    update_peer_status,
+    clear_peer_status
+)
 
 
 def _show_error_dialog(app, message: str) -> None:
@@ -55,7 +59,7 @@ def _get_self_info() -> tuple[str | None, str | None]:
 def _poll_for_addresses(app, use_stack) -> None:
     deadline = time.time() + 15
     while time.time() < deadline and (
-            app.ygg_pid is not None or app.socks_proc is not None
+        app.ygg_pid is not None or app.socks_proc is not None
     ):
         if use_stack:
             addr, subnet = get_self_info_stak()
@@ -63,10 +67,12 @@ def _poll_for_addresses(app, use_stack) -> None:
             addr, subnet = _get_self_info()
         if addr and subnet:
             GLib.idle_add(app._set_ip_labels, addr, subnet)
+            GLib.idle_add(update_peer_status, app)
             return
         time.sleep(1)
 
     GLib.idle_add(app._set_ip_labels, "-", "-")
+    GLib.idle_add(update_peer_status, app)
 
 
 def start_yggdrasil() -> int:
@@ -119,6 +125,7 @@ def switch_switched(app, _switch, state: bool) -> None:
         app.switch_row.set_subtitle("Stopped")
         app._set_ip_labels("-", "-")
         app._expand_ipv6_card(False)
+        clear_peer_status(app)
 
     print(f"The switch has been switched {'on' if state else 'off'}")
 

@@ -80,13 +80,9 @@ def switch_switched(app, _switch, state: bool) -> None:
         Thread(target=poll_for_addresses, args=(app, use_socks), daemon=True).start()
 
     elif not state and (app.ygg_pid is not None or app.socks_pid is not None):
-        pid = None
-        if app.ygg_pid is not None:
-            pid = app.ygg_pid
-            app.ygg_pid = None
-        elif app.socks_pid is not None:
-            pid = app.socks_pid
-            app.socks_pid = None
+        pid = app.ygg_pid or app.socks_pid
+        use_socks = pid is app.socks_pid
+        app.ygg_pid = app.socks_pid = None
         if pid:
             stop_ygg(use_socks, pid)
         app.switch_row.set_subtitle("Stopped")

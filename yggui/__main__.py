@@ -35,11 +35,26 @@ def cleanup_pid_file(pid_file, *_args) -> None:
     pid_file.unlink(missing_ok=True)
 
 
-from yggui.core.common import Default
+from yggui.core.common import Binary, Runtime
 
-write_pid_file(Default.pid_file)
-atexit.register(cleanup_pid_file, Default.pid_file)
-signal.signal(signal.SIGTERM, functools.partial(cleanup_pid_file, Default.pid_file))
+if Binary.ygg_path is None:
+    raise FileNotFoundError(
+        "The 'yggdrasil' executable was not found in your PATH. "
+        "Please install Yggdrasil or adjust your PATH environment "
+        "variable accordingly."
+    )
+
+if Binary.yggctl_path is None:
+    raise FileNotFoundError(
+        "The 'yggdrasilctl' executable was not found in your PATH. "
+        "Please install Yggdrasil or adjust your PATH environment "
+        "variable accordingly."
+    )
+
+
+write_pid_file(Runtime.pid_file)
+atexit.register(cleanup_pid_file, Runtime.pid_file)
+signal.signal(signal.SIGTERM, functools.partial(cleanup_pid_file, Runtime.pid_file))
 
 from yggui.core.window import MyApp
 

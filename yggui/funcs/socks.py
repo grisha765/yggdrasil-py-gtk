@@ -1,11 +1,11 @@
 import json
-from yggui.core.common import Default
+from yggui.core.common import Runtime, Binary
 
 
 def read_config():
-    if Default.config_path.exists():
+    if Runtime.config_path.exists():
         try:
-            with open(Default.config_path, "r", encoding="utf-8") as handle:
+            with open(Runtime.config_path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception:
             return {}
@@ -13,7 +13,7 @@ def read_config():
 
 
 def write_config(cfg):
-    with open(Default.config_path, "w", encoding="utf-8") as handle:
+    with open(Runtime.config_path, "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
 
 
@@ -29,7 +29,7 @@ def load_socks_config(app):
     listen = cfg.get("yggstack-listen", "127.0.0.1:1080")
     dns_ip = cfg.get("yggstack-dns-ip", "")
     dns_port = cfg.get("yggstack-dns-port", "53")
-    if Default.yggstack_path is None:
+    if Binary.yggstack_path is None:
         enabled = False
         app.socks_switch.set_sensitive(False)
         app.socks_card.set_sensitive(False)
@@ -53,7 +53,7 @@ def socks_switch_toggled(app, _switch, state: bool):
     app.socks_card.set_subtitle("Enabled" if state else "Disabled")
     app.socks_card.set_expanded(state)
     app.socks_config["enabled"] = state
-    if Default.pkexec_path is None:
+    if Binary.pkexec_path is None:
         app.ygg_switch.set_sensitive(state)
         app.ygg_card.set_sensitive(state)
         subtitle = "Stopped" if state else "Polkit not found"

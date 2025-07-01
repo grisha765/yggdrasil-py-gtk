@@ -1,14 +1,14 @@
 import json
 import subprocess
 
-from yggui.core.common import Default
+from yggui.core.common import Runtime, Binary
 from gi.repository import Gtk  # type: ignore
 
 
 def read_config():
-    if Default.config_path.exists():
+    if Runtime.config_path.exists():
         try:
-            with open(Default.config_path, "r", encoding="utf-8") as handle:
+            with open(Runtime.config_path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception:
             return {}
@@ -16,7 +16,7 @@ def read_config():
 
 
 def write_config(cfg):
-    with open(Default.config_path, "w", encoding="utf-8") as handle:
+    with open(Runtime.config_path, "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
 
 
@@ -41,7 +41,7 @@ def on_focus_leave(app, _controller):
 
 def regenerate(app):
     try:
-        cmd = [Default.ygg_path, "-genconf", "-json"]
+        cmd = [Binary.ygg_path, "-genconf", "-json"]
         result = subprocess.run(cmd, capture_output=True, check=True, text=True)
         generated = json.loads(result.stdout)
         new_key = generated.get("PrivateKey", "").strip()

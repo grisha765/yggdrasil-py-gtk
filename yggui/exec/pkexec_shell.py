@@ -1,7 +1,7 @@
 import subprocess
 import time
 from threading import Lock
-from yggui.core.common import Default
+from yggui.core.common import Runtime, Binary
 
 
 class PkexecShell:
@@ -11,10 +11,10 @@ class PkexecShell:
     @classmethod
     def _spawn_shell(cls) -> subprocess.Popen[str]:
         cmd = []
-        if Default.is_flatpak:
+        if Runtime.is_flatpak:
             cmd.extend(["flatpak-spawn", "--host"])
 
-        cmd.extend([Default.pkexec_path, "--disable-internal-agent", "/bin/sh"])
+        cmd.extend([Binary.pkexec_path, "--disable-internal-agent", "/bin/sh"])
         return subprocess.Popen(
             cmd,
             stdin=subprocess.PIPE,

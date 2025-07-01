@@ -1,4 +1,4 @@
-from yggui.core.common import Default
+from yggui.core.common import Binary, Runtime
 from yggui.exec.shell import Shell
 from yggui.exec.pkexec_shell import PkexecShell
 
@@ -7,13 +7,13 @@ def start_ygg(use_socks: bool, socks_args) -> int:
     cmd = []
     if not use_socks:
         runner = PkexecShell
-        cmd.append(str(Default.ygg_path))
+        cmd.append(str(Binary.ygg_path))
     else:
         listen: str = socks_args.get("listen", "127.0.0.1:1080")
         dns_ip: str = socks_args.get("dns_ip", "")
         dns_port: str = socks_args.get("dns_port", "53")
         runner = Shell
-        cmd.append(str(Default.yggstack_path))
+        cmd.append(str(Binary.yggstack_path))
         if listen:
             cmd.extend(["-socks", listen])
         if dns_ip:
@@ -22,7 +22,7 @@ def start_ygg(use_socks: bool, socks_args) -> int:
             else:
                 nameserver = f"{dns_ip}:{dns_port}"
             cmd.extend(["-nameserver", nameserver])
-    cmd.extend(["-useconffile", str(Default.config_path.resolve())])
+    cmd.extend(["-useconffile", str(Runtime.config_path.resolve())])
     return runner.run_background(' '.join(cmd))
 
 

@@ -20,7 +20,7 @@ def xdg_config(app_name: str) -> Path:
     cfg_dir.mkdir(parents=True, exist_ok=True)
     return cfg_dir
 
-class Default:
+class Regexp:
     domain_re = re.compile(
         r"""^(
             (?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?
@@ -30,43 +30,37 @@ class Default:
         re.X,
     )
     sni_re = re.compile(r"^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$")
+
+class Runtime:
     is_flatpak = Path('/.flatpak-info').is_file()
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
     runtime_dir.mkdir(parents=True, exist_ok=True)
     pid_file = runtime_dir / "yggui.pid"
+    admin_socket = str(runtime_dir / 'yggdrasil.sock')
+    config_path = xdg_config('yggui') / 'config.json'
+
+
+class Binary:
     ygg_path = shutil.which('yggdrasil')
     yggctl_path = shutil.which('yggdrasilctl')
     yggctl_path_stack = yggctl_path
     yggstack_path = shutil.which('yggstack')
     pkexec_path = shutil.which('pkexec')
-    if is_flatpak:
+    if Runtime.is_flatpak:
         pkexec_path = which_in_flatpak('pkexec')
         if ygg_path:
-            dst = runtime_dir / 'yggdrasil'
+            dst = Runtime.runtime_dir / 'yggdrasil'
             shutil.copy2(ygg_path, dst)
             ygg_path = str(dst)
         if yggctl_path:
-            dst = runtime_dir / 'yggdrasilctl'
+            dst = Runtime.runtime_dir / 'yggdrasilctl'
             shutil.copy2(yggctl_path, dst)
             yggctl_path = str(dst)
-    config_path = xdg_config('yggui') / 'config.json'
+
+
+class Gui:
     ui_file = files('yggui.ui').joinpath('ui.ui')
     ui_main_file = files('yggui.ui').joinpath('main.ui')
     ui_settings_file = files('yggui.ui').joinpath('settings.ui')
     peer_ui_file = files('yggui.ui').joinpath('peer_dialog.ui')
     css_file = files('yggui.ui').joinpath('ui.css')
-    admin_socket = str(runtime_dir / 'yggdrasil.sock')
-    if ygg_path is None:
-        raise FileNotFoundError(
-            "The 'yggdrasil' executable was not found in your PATH. "
-            "Please install Yggdrasil or adjust your PATH environment "
-            "variable accordingly."
-        )
-
-    if yggctl_path is None:
-        raise FileNotFoundError(
-            "The 'yggdrasilctl' executable was not found in your PATH. "
-            "Please install Yggdrasil or adjust your PATH environment "
-            "variable accordingly."
-        )
-

@@ -6,7 +6,7 @@ from urllib.parse import urlparse, parse_qs
 
 from yggui.exec.get_info import get_peers_status
 
-from yggui.core.common import Default
+from yggui.core.common import Runtime, Gui, Regexp
 
 
 def apply_status(app, status: dict[str, bool]) -> None:
@@ -56,9 +56,9 @@ def clear_peer_status(app) -> bool:
 
 
 def read_config():
-    if Default.config_path.exists():
+    if Runtime.config_path.exists():
         try:
-            with open(Default.config_path, "r", encoding="utf-8") as handle:
+            with open(Runtime.config_path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
         except Exception:
             return {}
@@ -66,7 +66,7 @@ def read_config():
 
 
 def write_config(cfg):
-    with open(Default.config_path, "w", encoding="utf-8") as handle:
+    with open(Runtime.config_path, "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
 
 
@@ -135,7 +135,7 @@ def rebuild_peers_box(app):
 
 
 def open_add_peer_dialog(app):
-    builder = Gtk.Builder.new_from_file(str(Default.peer_ui_file))
+    builder = Gtk.Builder.new_from_file(str(Gui.peer_ui_file))
 
     dialog: Adw.AlertDialog = builder.get_object("add_peer_dialog")
     domain_row: Adw.EntryRow = builder.get_object("domain_row")
@@ -159,7 +159,7 @@ def open_add_peer_dialog(app):
         proto  = ["tcp", "tls", "quic"][proto_row.get_selected()]
 
         domain_has_text = bool(domain)
-        domain_valid    = bool(Default.domain_re.fullmatch(domain))
+        domain_valid    = bool(Regexp.domain_re.fullmatch(domain))
 
         if domain_has_text and not domain_valid:
             domain_row.add_css_class("error")
@@ -171,7 +171,7 @@ def open_add_peer_dialog(app):
         sni_valid = True
         if proto == "tls":
             sni_has_text = bool(sni)
-            sni_valid = (not sni_has_text) or bool(Default.sni_re.fullmatch(sni))
+            sni_valid = (not sni_has_text) or bool(Regexp.sni_re.fullmatch(sni))
 
             if sni_has_text and not sni_valid:
                 sni_row.add_css_class("error")

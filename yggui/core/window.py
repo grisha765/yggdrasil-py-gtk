@@ -7,7 +7,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
-from yggui.core.common import Default
+from yggui.core.common import Gui, Binary
 from yggui.funcs.config import create_config
 from yggui.funcs.peers import load_config
 from yggui.exec.pkexec_shell import PkexecShell
@@ -45,7 +45,7 @@ class MyApp(Adw.Application):
         self.default_private_key = ""
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_file(Gio.File.new_for_path(str(Default.css_file)))
+        css_provider.load_from_file(Gio.File.new_for_path(str(Gui.css_file)))
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(),
             css_provider,
@@ -55,9 +55,9 @@ class MyApp(Adw.Application):
     def on_activate(self, _app):
         builder = Gtk.Builder()
 
-        builder.add_from_file(str(Default.ui_file))
-        builder.add_from_file(str(Default.ui_main_file))
-        builder.add_from_file(str(Default.ui_settings_file))
+        builder.add_from_file(str(Gui.ui_file))
+        builder.add_from_file(str(Gui.ui_main_file))
+        builder.add_from_file(str(Gui.ui_settings_file))
 
         self.win: Adw.ApplicationWindow = builder.get_object("main_window")
         self.win.set_application(self)
@@ -113,12 +113,12 @@ class MyApp(Adw.Application):
         self._make_row_clickable(self.address_row, lambda: self.address_row.get_subtitle())
         self._make_row_clickable(self.subnet_row, lambda: self.subnet_row.get_subtitle())
 
-        if Default.pkexec_path is None:
+        if Binary.pkexec_path is None:
             self.ygg_switch.set_sensitive(False)
             self.ygg_card.set_sensitive(False)
             self.ygg_card.set_subtitle("Polkit not found")
 
-        if Default.ygg_path is None:
+        if Binary.ygg_path is None:
             self.ygg_switch.set_sensitive(False)
             self.ygg_card.set_sensitive(False)
             self.ygg_card.set_subtitle("Yggdrasil not found")
@@ -129,7 +129,7 @@ class MyApp(Adw.Application):
                 lambda sw, _pspec: switch_switched(self, sw, sw.get_active()),
             )
             self.ygg_card.connect("notify::expanded", self._card_expanded)
-            if Default.yggstack_path is None:
+            if Binary.yggstack_path is None:
                 self.socks_switch.set_sensitive(False)
                 self.socks_card.set_sensitive(False)
                 self.socks_card.set_subtitle("Yggstack not found")

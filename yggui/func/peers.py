@@ -55,6 +55,10 @@ def _apply_status(app, status: dict[str, bool]) -> None:
 
 
 def update_peer_status(app) -> bool:
+    if getattr(app, "ygg_pid", None) is None and getattr(app, "socks_proc", None) is None:
+        clear_peer_status(app)
+        return False
+
     status = _get_peers_status()
     GLib.idle_add(_apply_status, app, status)
 

@@ -50,11 +50,8 @@ def _get_peers_status() -> dict[str, bool]:
 
 
 def _apply_status(app, status: dict[str, bool]) -> None:
-    for peer, row in getattr(app, "_peer_rows", {}).items():
-        row.remove_css_class("error")
-        row.remove_css_class("success")
-        up = status.get(peer, False)
-        row.add_css_class("success" if up else "error")
+    for peer, (icon, default_icon) in getattr(app, "_peer_icons", {}).items():
+        icon.set_from_icon_name(default_icon if status.get(peer, False) else 'network-error-symbolic')
 
 
 def update_peer_status(app) -> bool:
@@ -85,9 +82,9 @@ def update_peer_status(app) -> bool:
 
 
 def clear_peer_status(app) -> bool:
-    for row in getattr(app, "_peer_rows", {}).values():
-        row.remove_css_class("error")
-        row.remove_css_class("success")
+    for icon, default_icon in getattr(app, "_peer_icons", {}).values():
+        icon.set_from_icon_name(default_icon)
+
     app._stop_peer_status_thread = True
     app._peer_status_thread_running = False
     return False
@@ -131,6 +128,7 @@ def _rebuild_peers_box(app):
         child = nxt
 
     app._peer_rows = {}
+    app._peer_icons = {}
 
     for peer in sorted(app.peers):
         parsed = urlparse(peer)
@@ -170,6 +168,7 @@ def _rebuild_peers_box(app):
         app.peers_box.append(row)
 
         app._peer_rows[_normalize_peer(peer)] = row
+        app._peer_icons[_normalize_peer(peer)] = (icon, icon_name)
 
     count = len(app.peers)
     if count == 0:
@@ -251,6 +250,7 @@ def _open_add_peer_dialog(app):
             app.peers.append(peer)
             _save_peers_to_disk(app)
             _rebuild_peers_box(app)
+            update_peer_status(app)
 
     dialog.connect("response", lambda _d, resp: resp == "add" and _commit())
     dialog.present(app.win)

@@ -53,6 +53,10 @@ class MyApp(Adw.Application):
         )
 
     def on_activate(self, _app):
+        if getattr(self, "win", None) is not None:
+            self.win.present()
+            return
+
         builder = Gtk.Builder()
 
         builder.add_from_file(str(Gui.ui_file))

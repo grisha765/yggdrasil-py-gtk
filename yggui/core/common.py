@@ -35,7 +35,6 @@ class Runtime:
     is_flatpak = Path('/.flatpak-info').is_file()
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
     runtime_dir.mkdir(parents=True, exist_ok=True)
-    pid_file = runtime_dir / "yggui.pid"
     admin_socket = str(runtime_dir / 'yggdrasil.sock')
     config_path = xdg_config('yggui') / 'config.json'
 

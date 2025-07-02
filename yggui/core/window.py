@@ -7,7 +7,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
-from yggui.core.common import Gui, Binary
+from yggui.core.common import Gui, Binary, get_app_version
 from yggui.funcs.config import create_config
 from yggui.funcs.peers import load_config
 from yggui.exec.pkexec_shell import PkexecShell
@@ -62,10 +62,15 @@ class MyApp(Adw.Application):
         builder.add_from_file(str(Gui.ui_file))
         builder.add_from_file(str(Gui.ui_main_file))
         builder.add_from_file(str(Gui.ui_settings_file))
+        builder.add_from_file(str(Gui.about_ui_file))
 
         self.win: Adw.ApplicationWindow = builder.get_object("main_window")
         self.win.set_application(self)
         self.win.present()
+
+        self.about_btn: Gtk.Button = builder.get_object("about_btn")
+
+        self.about_btn.connect("clicked", self._on_about_clicked)
 
         self.toast_overlay: Adw.ToastOverlay = builder.get_object("toast_overlay")
 
@@ -159,6 +164,17 @@ class MyApp(Adw.Application):
 
 
         self.stack.set_visible_child(self.main_box)
+
+    def _on_about_clicked(self, _btn: Gtk.Button) -> None:
+        if getattr(self, "about_dialog", None) is None:
+            about_builder = Gtk.Builder()
+            about_builder.add_from_file(str(Gui.about_ui_file))
+            self.about_dialog: Adw.AboutWindow = about_builder.get_object("about_window")
+            self.about_dialog.set_transient_for(self.win)
+            self.about_dialog.set_modal(True)
+            self.about_dialog.set_version(get_app_version())
+
+        self.about_dialog.present()
 
     def on_shutdown(self, _app):
         runner = PkexecShell if self.ygg_pid else Shell

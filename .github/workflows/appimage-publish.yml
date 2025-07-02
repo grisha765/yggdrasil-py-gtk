@@ -64,8 +64,8 @@ jobs:
           mkdir -p usr/share/metainfo
           cp ../yggdrasil/yggdrasil* usr/bin/
           cp ../yggstack/yggstack usr/bin/
-          ln -s $GITHUB_WORKSPACE/${{ github.event.repository.name }}/xdg/* $PWD/
-          mv *metainfo* usr/share/metainfo/
+          cp $GITHUB_WORKSPACE/${{ github.event.repository.name }}/xdg/*.{desktop,png} $PWD/
+          cp $GITHUB_WORKSPACE/${{ github.event.repository.name }}/xdg/*metainfo.xml usr/share/metainfo/
 
           cat > entrypoint.sh <<'EOF'
           #!/usr/bin/env sh

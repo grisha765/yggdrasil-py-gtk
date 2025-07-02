@@ -1,9 +1,11 @@
 # yggdrasil-go-gtk
 A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay‑network node (and optional Yggstack SOCKS proxy) on Linux. Yggdrasil‑go‑gtk wraps the official yggdrasil and yggdrasilctl binaries with an ergonomic UI that follows GNOME design guidelines. It can operate both on bare‑metal and inside a Flatpak sandbox, automatically copying host binaries into a private runtime directory when needed.
 
-### Finished flatpak assemblies
+### Finished builds
 
-- Download the stable releases from flatpak:
+- Download appimage [releases](https://github.com/grisha765/yggdrasil-go-gtk/releases)
+
+- Download the releases from flatpak:
     ```bash
     flatpak remote-add --user yggdrasil-go-gtk https://grisha765.github.io/yggdrasil-go-gtk/grisha765.flatpakrepo
     ```

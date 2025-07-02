@@ -20,6 +20,7 @@ def xdg_config(app_name: str) -> Path:
     cfg_dir.mkdir(parents=True, exist_ok=True)
     return cfg_dir
 
+
 class Regexp:
     domain_re = re.compile(
         r"""^(
@@ -31,8 +32,10 @@ class Regexp:
     )
     sni_re = re.compile(r"^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$")
 
+
 class Runtime:
     is_flatpak = Path('/.flatpak-info').is_file()
+    is_appimage = os.getenv("APPIMAGE") is not None
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
     runtime_dir.mkdir(parents=True, exist_ok=True)
     admin_socket = str(runtime_dir / 'yggdrasil.sock')
@@ -45,8 +48,9 @@ class Binary:
     yggctl_path_stack = yggctl_path
     yggstack_path = shutil.which('yggstack')
     pkexec_path = shutil.which('pkexec')
-    if Runtime.is_flatpak:
-        pkexec_path = which_in_flatpak('pkexec')
+    if Runtime.is_flatpak or Runtime.is_appimage:
+        if Runtime.is_flatpak:
+            pkexec_path = which_in_flatpak('pkexec')
         if ygg_path:
             dst = Runtime.runtime_dir / 'yggdrasil'
             shutil.copy2(ygg_path, dst)

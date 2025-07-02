@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "yggdrasil-go-gtk"
 version = "0.1.0"
@@ -7,6 +11,15 @@ requires-python = ">=3.12"
 dependencies = [
     "pygobject>=3.52.2",
 ]
+
+[project.scripts]
+yggui = "yggui.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["yggui*"]
+
+[tool.setuptools.package-data]
+"yggui.ui" = ["*.ui", "*.css"]
 
 [tool.pyright]
 venvPath = '.'

@@ -112,6 +112,7 @@ jobs:
         with:
           pattern: Yggdrasil-GTK-*
           path: builds
+          merge-multiple: true
 
       - name: Create Pre-release
         uses: softprops/action-gh-release@v2.3.2

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yggdrasil-go-gtk"
-version = "0.1.0"
-description = "Graphical interface for yggdrasil on gtk4 + libadwaita"
+version = "0.0.1"
+description = "Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil."
 readme = "readme.md"
 requires-python = ">=3.12"
 dependencies = [

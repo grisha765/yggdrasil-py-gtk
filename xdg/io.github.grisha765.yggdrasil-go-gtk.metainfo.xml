@@ -10,7 +10,7 @@
   <launchable type="desktop-id">io.github.grisha765.yggdrasil-go-gtk.desktop</launchable>
   <url type="homepage">https://github.com/grisha765/yggdrasil-go-gtk</url>
   <releases>
-    <release version="0.1.0" date="2025-07-02"/>
+    <release version="0.0.1" date="2025-07-02"/>
   </releases>
 </component>
 

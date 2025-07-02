@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'readme.md'
+    paths:
+      - 'yggui/**'
+      - 'xdg/**'
   workflow_dispatch:
 
 jobs:
@@ -54,7 +55,7 @@ jobs:
       - name: Install python-appimage
         run: python3 -m pip install --upgrade python-appimage
 
-      - name: Create appimage dir
+      - name: Create AppimageDir
         run: mkdir -p appimage
 
       - name: Prepare AppimageDir

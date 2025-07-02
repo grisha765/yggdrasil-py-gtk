@@ -56,6 +56,7 @@ modules:
       - pip3 install --no-build-isolation --no-cache-dir --no-deps --prefix=/app .
       - install -Dm644 xdg/io.github.grisha765.yggdrasil-go-gtk.png /app/share/icons/hicolor/72x72/apps/io.github.grisha765.yggdrasil-go-gtk.png
       - install -Dm755 xdg/io.github.grisha765.yggdrasil-go-gtk.desktop /app/share/applications/io.github.grisha765.yggdrasil-go-gtk.desktop
+      - install -Dm644 xdg/io.github.grisha765.yggdrasil-go-gtk.metainfo.xml /app/share/metainfo/io.github.grisha765.yggdrasil-go-gtk.metainfo.xml
     sources:
       - type: dir
         path: .

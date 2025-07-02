@@ -79,13 +79,18 @@ def _find_metainfo_file() -> Path | None:
         f"{app_id}.appdata.xml",
     ]
     prefixes = [
-        "/app/share/metainfo",
-        "/usr/share/metainfo",
-        "/usr/local/share/metainfo"
+        Path("/app/share/metainfo"),
+        Path("/usr/share/metainfo"),
+        Path("/usr/local/share/metainfo")
     ]
+    if Runtime.is_appimage and (appdir := os.getenv("APPDIR")):
+        prefixes = [
+            Path(appdir) / "usr/share/metainfo",
+            Path(appdir) / "share/metainfo"
+        ]
     for prefix in prefixes:
         for name in names:
-            path = Path(prefix) / name
+            path = prefix / name
             if path.is_file():
                 return path
     return None

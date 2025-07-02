@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
   <id>io.github.grisha765.yggdrasil-go-gtk</id>
-  <name>Yggdrasil GTK</name>
+  <name>Yggdrasil-GTK</name>
   <summary>Graphical interface for the Yggdrasil overlay network</summary>
   <description>
     <p>Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil.</p>

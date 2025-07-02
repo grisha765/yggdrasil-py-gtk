@@ -22,6 +22,15 @@
                     <property name="policy">wide</property>
                   </object>
                 </child>
+
+                <child type="end">
+                  <object class="GtkButton" id="about_btn">
+                    <property name="icon-name">help-about-symbolic</property>
+                    <property name="tooltip-text" translatable="yes">About</property>
+                    <property name="css-classes">flat</property>
+                  </object>
+                </child>
+
               </object>
             </child>
 

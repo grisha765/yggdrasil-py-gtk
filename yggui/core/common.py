@@ -1,6 +1,7 @@
 import shutil, os, subprocess, re
 from pathlib import Path
 from importlib.resources import files
+import xml.etree.ElementTree as ET
 
 def which_in_flatpak(cmd: str) -> str | None:
     result = subprocess.run(
@@ -34,6 +35,7 @@ class Regexp:
 
 
 class Runtime:
+    app_id = "io.github.grisha765.yggdrasil-go-gtk"
     is_flatpak = Path('/.flatpak-info').is_file()
     is_appimage = os.getenv("APPIMAGE") is not None
     runtime_dir = Path(os.environ.get('XDG_RUNTIME_DIR', '/tmp')) / 'yggui'
@@ -66,4 +68,40 @@ class Gui:
     ui_main_file = files('yggui.ui').joinpath('main.ui')
     ui_settings_file = files('yggui.ui').joinpath('settings.ui')
     peer_ui_file = files('yggui.ui').joinpath('peer_dialog.ui')
+    about_ui_file = files("yggui.ui").joinpath("about_dialog.ui")
     css_file = files('yggui.ui').joinpath('ui.css')
+
+
+def _find_metainfo_file() -> Path | None:
+    app_id = Runtime.app_id
+    names = [
+        f"{app_id}.metainfo.xml",
+        f"{app_id}.appdata.xml",
+    ]
+    prefixes = [
+        "/app/share/metainfo",
+        "/usr/share/metainfo",
+        "/usr/local/share/metainfo"
+    ]
+    for prefix in prefixes:
+        for name in names:
+            path = Path(prefix) / name
+            if path.is_file():
+                return path
+    return None
+
+
+def get_app_version() -> str:
+    path = _find_metainfo_file()
+    if not path:
+        return "dev"
+    try:
+        root = ET.parse(path).getroot()
+        release = root.find(".//release")
+        if release is not None:
+            version = release.attrib.get("version")
+            if version:
+                return version
+    except ET.ParseError:
+        pass
+    return "dev"

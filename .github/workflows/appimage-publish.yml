@@ -1,0 +1,126 @@
+name: Build and Push appimage
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'readme.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ x86_64, aarch64 ]
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-22.04-arm' || 'ubuntu-latest' }}
+    container:
+      image: docker.io/fedora:latest
+
+    steps:
+      - name: Install dependencies
+        run: dnf install -y git python3 python3-pip python3-devel golang gcc cairo-devel cairo-gobject-devel
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: ${{ github.event.repository.name }}
+
+      - name: Checkout yggdrasil
+        uses: actions/checkout@v4
+        with:
+          repository: yggdrasil-network/yggdrasil-go
+          path: yggdrasil
+
+      - name: Build yggdrasil
+        env:
+          CGO_ENABLED: 0
+        run: ./build
+        working-directory: yggdrasil
+
+      - name: Checkout yggstack
+        uses: actions/checkout@v4
+        with:
+          repository: yggdrasil-network/yggstack
+          path: yggstack
+
+      - name: Build yggstack
+        env:
+          CGO_ENABLED: 0
+        run: ./build
+        working-directory: yggstack
+
+      - name: Install python-appimage
+        run: python3 -m pip install --upgrade python-appimage
+
+      - name: Create appimage dir
+        run: mkdir -p appimage
+
+      - name: Prepare AppimageDir
+        run: |
+          mkdir -p usr/bin
+          cp ../yggdrasil/yggdrasil* usr/bin/
+          cp ../yggstack/yggstack usr/bin/
+          ln -s $GITHUB_WORKSPACE/${{ github.event.repository.name }}/xdg/* $PWD/
+
+          cat > entrypoint.sh <<'EOF'
+          #!/usr/bin/env sh
+          set -e
+          export PATH="$APPDIR/usr/bin:$PATH"
+          exec {{ python-executable }} -I -m yggui "$@"
+          EOF
+          chmod +x entrypoint.sh
+
+          cat > requirements.txt <<EOF
+          yggdrasil-go-gtk@file:///$GITHUB_WORKSPACE/${{ github.event.repository.name }}
+          pygobject>=3.52.2
+          EOF
+        working-directory: appimage
+
+      - name: Build Appimage
+        env:
+          PIP_NO_CACHE_DIR: 1
+        run: python-appimage build app -p 3.12 appimage -x appimage/usr
+
+      - name: Upload build ${{ matrix.arch }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yggdrasil-GTK-${{ matrix.arch }}
+          path: Yggdrasil-GTK-${{ matrix.arch }}.AppImage
+
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get short commit SHA and commit count
+        id: vars
+        run: | 
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "commit_number=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Download all builds
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Yggdrasil-GTK-*
+          path: builds
+
+      - name: Create Pre-release
+        uses: softprops/action-gh-release@v2.3.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: build-${{ steps.vars.outputs.commit_number }}-${{ steps.vars.outputs.short_sha }}
+          name: Build from commit ${{ steps.vars.outputs.short_sha }}
+          prerelease: true
+          generate_release_notes: true
+          files: builds/Yggdrasil-GTK-*
+

@@ -21,6 +21,9 @@ include = ["yggui*"]
 [tool.setuptools.package-data]
 "yggui.ui" = ["*.ui", "*.css"]
 
+[tool.uv]
+package = false
+
 [tool.pyright]
 venvPath = '.'
 venv = '.venv'

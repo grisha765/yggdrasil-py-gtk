@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from yggui.core.common import Binary
+from yggui.core.common import Binary, Runtime
 from yggui.core.window import MyApp
 
 
@@ -23,7 +23,7 @@ def _ensure_prerequisites():
 def main():
     _ensure_prerequisites()
     app = MyApp(
-        application_id="io.github.grisha765.yggdrasil-go-gtk"
+        application_id=Runtime.app_id
     )
     app.run(sys.argv)
 

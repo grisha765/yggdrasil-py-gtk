@@ -81,7 +81,8 @@ def _find_metainfo_file() -> Path | None:
     prefixes = [
         Path("/app/share/metainfo"),
         Path("/usr/share/metainfo"),
-        Path("/usr/local/share/metainfo")
+        Path("/usr/local/share/metainfo"),
+        Path("xdg/")
     ]
     if Runtime.is_appimage and (appdir := os.getenv("APPDIR")):
         prefixes = [
@@ -96,17 +97,48 @@ def _find_metainfo_file() -> Path | None:
     return None
 
 
-def get_app_version() -> str:
+def get_app_info() -> dict:
     path = _find_metainfo_file()
     if not path:
-        return "dev"
+        return {}
+
     try:
         root = ET.parse(path).getroot()
+
+        name = root.findtext("name", default="")
+        project_license = root.findtext("project_license", default="")
+        summary = root.findtext("summary", default="")
+
+        desc_elem = root.find("description")
+        if desc_elem is not None:
+            description = "".join(desc_elem.itertext()).strip()
+        else:
+            description = ""
+
         release = root.find(".//release")
-        if release is not None:
-            version = release.attrib.get("version")
-            if version:
-                return version
+        version = release.attrib.get("version") if release is not None else "dev"
+        developer_name = root.findtext("developer/name", default="")
+
+        homepage_url = ""
+        issue_url = ""
+
+        for url_elem in root.findall("url"):
+            url_type = url_elem.attrib.get("type", "")
+            if url_type == "homepage":
+                homepage_url = url_elem.text or ""
+            elif url_type == "bugtracker":
+                issue_url = url_elem.text or ""
+
+        return {
+            "name": name,
+            "project_license": project_license,
+            "summary": summary,
+            "description": description,
+            "version": version,
+            "developer_name": developer_name,
+            "website": homepage_url,
+            "issue_url": issue_url
+        }
+
     except ET.ParseError:
-        pass
-    return "dev"
+        return {}

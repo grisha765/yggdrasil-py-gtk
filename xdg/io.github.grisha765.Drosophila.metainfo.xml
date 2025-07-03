@@ -2,15 +2,48 @@
 <component type="desktop">
   <id>io.github.grisha765.Drosophila</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0-or-later</project_license>
+  <project_license>GPL-3.0</project_license>
   <name>Drosophila</name>
-  <summary>Graphical interface for the Yggdrasil overlay network</summary>
+  <summary>Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil.</summary>
   <description>
-    <p>Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil.</p>
+    <p>A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay-network node on Linux.</p>
   </description>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-fantasy">none</content_attribute>
+    <content_attribute id="violence-bloodshed">none</content_attribute>
+    <content_attribute id="violence-sexual">none</content_attribute>
+    <content_attribute id="violence-desecration">none</content_attribute>
+    <content_attribute id="violence-slavery">none</content_attribute>
+    <content_attribute id="violence-worship">none</content_attribute>
+    <content_attribute id="drugs-alcohol">none</content_attribute>
+    <content_attribute id="drugs-narcotics">none</content_attribute>
+    <content_attribute id="drugs-tobacco">none</content_attribute>
+    <content_attribute id="sex-nudity">none</content_attribute>
+    <content_attribute id="sex-themes">none</content_attribute>
+    <content_attribute id="sex-homosexuality">none</content_attribute>
+    <content_attribute id="sex-prostitution">none</content_attribute>
+    <content_attribute id="sex-adultery">none</content_attribute>
+    <content_attribute id="sex-appearance">none</content_attribute>
+    <content_attribute id="language-profanity">none</content_attribute>
+    <content_attribute id="language-humor">none</content_attribute>
+    <content_attribute id="language-discrimination">none</content_attribute>
+  </content_rating>
   <provides><binary>yggui</binary></provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/grisha765/Drosophila/blob/6ee4fa7fccf8580640fe5a104130df95aa0d2ef9/.github/docs/main.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/grisha765/Drosophila/blob/6ee4fa7fccf8580640fe5a104130df95aa0d2ef9/.github/docs/settings.png</image>
+    </screenshot>
+  </screenshots>
+  <developer id="io.github.grisha765">
+    <name>Grisha</name>
+  </developer>
   <launchable type="desktop-id">io.github.grisha765.Drosophila.desktop</launchable>
   <url type="homepage">https://github.com/grisha765/Drosophila</url>
+  <url type="vcs-browser">https://github.com/grisha765/Drosophila</url>
+  <url type="bugtracker">https://github.com/grisha765/Drosophila/issues</url>
   <releases>
     <release version="0.0.1" date="2025-07-02"/>
   </releases>

@@ -7,7 +7,7 @@ gi.require_version("Adw", "1")
 
 from gi.repository import Gtk, Adw, Gdk, Gio  # type: ignore
 
-from yggui.core.common import Gui, Binary, get_app_version
+from yggui.core.common import Gui, Binary, get_app_info
 from yggui.funcs.config import create_config
 from yggui.funcs.peers import load_config
 from yggui.exec.pkexec_shell import PkexecShell
@@ -172,7 +172,17 @@ class MyApp(Adw.Application):
             self.about_dialog: Adw.AboutWindow = about_builder.get_object("about_window")
             self.about_dialog.set_transient_for(self.win)
             self.about_dialog.set_modal(True)
-            self.about_dialog.set_version(get_app_version())
+
+            info = get_app_info()
+
+            self.about_dialog.set_application_name(info.get("name", ""))
+            self.about_dialog.set_version(info.get("version", "dev"))
+            self.about_dialog.set_developer_name(info.get("developer_name", ""))
+            self.about_dialog.set_license_type(Gtk.License.GPL_3_0)
+            self.about_dialog.set_website(info.get("website", ""))
+            self.about_dialog.set_issue_url(info.get("issue_url", ""))
+            self.about_dialog.set_comments(info.get("summary", ""))
+
             self.about_dialog.set_hide_on_close(True)
             self.about_dialog.connect("destroy", lambda *_: setattr(self, "about_dialog", None))
 

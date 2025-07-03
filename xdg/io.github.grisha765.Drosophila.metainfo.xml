@@ -31,10 +31,10 @@
   <provides><binary>yggui</binary></provides>
   <screenshots>
     <screenshot type="default">
-      <image>https://github.com/grisha765/Drosophila/blob/6ee4fa7fccf8580640fe5a104130df95aa0d2ef9/.github/docs/main.png</image>
+      <image>https://github.com/grisha765/Drosophila/blob/ee6ca333adbdc6b72e6fbf7201776bf518a0d288/.github/docs/main.png</image>
     </screenshot>
     <screenshot>
-      <image>https://github.com/grisha765/Drosophila/blob/6ee4fa7fccf8580640fe5a104130df95aa0d2ef9/.github/docs/settings.png</image>
+      <image>https://github.com/grisha765/Drosophila/blob/ee6ca333adbdc6b72e6fbf7201776bf518a0d288/.github/docs/settings.png</image>
     </screenshot>
   </screenshots>
   <developer id="io.github.grisha765">

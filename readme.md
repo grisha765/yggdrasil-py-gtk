@@ -1,76 +1,56 @@
 # yggdrasil-py-gtk
-A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay‑network node (and optional Yggstack SOCKS proxy) on Linux. Yggdrasil-py-gtk wraps the official yggdrasil and yggdrasilctl binaries with an ergonomic UI that follows GNOME design guidelines. It can operate both on bare‑metal and inside a Flatpak sandbox, automatically copying host binaries into a private runtime directory when needed.
+A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) overlay-network node on Linux.
 
-### Finished builds
+## Quick start
 
-- Download appimage [releases](https://github.com/grisha765/yggdrasil-py-gtk/releases)
+### Flatpak
 
-- Download the releases from flatpak:
-    ```bash
-    flatpak remote-add --user yggdrasil-py-gtk https://grisha765.github.io/yggdrasil-py-gtk/grisha765.flatpakrepo
-    ```
-    ```bash
-    flatpak install --user yggdrasil-py-gtk io.github.grisha765.yggdrasil-py-gtk
-    ```
+```bash
+flatpak remote-add --user yggdrasil-py-gtk https://grisha765.github.io/yggdrasil-py-gtk/grisha765.flatpakrepo
+flatpak install --user yggdrasil-py-gtk io.github.grisha765.yggdrasil-py-gtk
+````
 
-### Initial Setup
+### AppImage
 
-1. **Clone the repository**: Clone this repository using `git clone`.
-2. **Create Virtual Env**: Create a Python Virtual Environment `venv` to download the required dependencies and libraries.
-3. **Download Dependencies**: Download the required dependencies into the Virtual Environment `venv` using `uv`.
-    ```bash
-    git clone https://github.com/grisha765/yggdrasil-py-gtk.git
-    cd yggdrasil-py-gtk
-    python -m venv .venv
-    .venv/bin/python -m pip install uv
-    .venv/bin/python -m uv sync
-    ```
+Download the latest AppImage from the [releases page](https://github.com/grisha765/yggdrasil-py-gtk/releases) and make it executable:
 
-4. **Download Dependencies in distro**:
-    ```bash
-    sudo dnf install -y gtk4 libadwaita python3-gobject
-    ```
+```bash
+chmod +x Yggdrasil-GTK-*.AppImage 
+./Yggdrasil-GTK-*.AppImage
+```
 
-5. **Build yggdrasil**: Download the source code, build, put the binary in the root of the project.
-    - Clone repo:
-        ```bash
-        git clone https://github.com/yggdrasil-network/yggdrasil-go.git
-        ```
-    - Build project:
-        ```bash
-        cd yggdrasil-go \
-        && ./build
-        ```
-    - Put the binary:
-        ```bash
-        mv ./yggdrasil $HOME/.local/bin/ && \
-        mv ./yggdrasilctl $HOME/.local/bin/
-        ```
+### Python package
 
-6. **Run the GUI**:
-    ```bash
-    .venv/bin/python -m yggui
-    ```
+```bash
+pip install --upgrade git+https://github.com/grisha765/yggdrasil-py-gtk.git@main#egg=yggdrasil-py-gtk
+python -m yggui
+```
 
-### Install with Python library
-
-1. **Install with pip**:
-    ```bash
-    pip install git+https://github.com/grisha765/yggdrasil-py-gtk.git@main#egg=yggdrasil-py-gtk
-    ```
-
-2. **Run the GUI**:
-    ```bash
-    python3 -m yggui
-    ```
+> **Want to build and run from source?**
+> See the [developer deployment guide](.github/docs/development.md).
 
 ## Features
 
-- **One‑click start/stop** – toggles the daemon with polkit (pkexec) or by launching Yggstack when the SOCKS proxy is enabled.
-- **Live status panel** – polls the admin socket and shows the current IPv6 address and /64 subnet.
-- **Peer management** – add/remove peers with validation for TCP/TLS/QUIC, optional SNI, and instant persistence to config.json.
-- **SOCKS5 proxy & DNS forwarder** – expose Yggdrasil traffic through Yggstack with user‑defined listen address and nameserver.
-- **Private‑key tooling** – view, edit or regenerate the node’s PrivateKey in‑place.
-- **Clipboard helpers** – copy address/subnet rows with a single click.
-- **Flatpak aware** – transparently moves required binaries into the sandbox and invokes host shell commands via flatpak‑spawn.
-- **Failsafe exit** – gracefully stops child processes on SIGINT or application shutdown.
+- One-click switch toggle Yggdrasil daemon or Yggstack SOCKS proxy
+- Live status panel showing IPv6 address and /64 subnet
+- Peer management with validation and persistence
+- Optional SOCKS5 proxy & DNS forwarder via Yggstack
+- Private-key viewer / editor / generator
+- Clipboard helpers for address & subnet
+- Flatpak-aware: automatically moves required binaries into the sandbox
+- Graceful shutdown on exit or SIGINT
+
+## Screenshots
+
+| Main page                                             | Settings                                                 |
+|-------------------------------------------------------|----------------------------------------------------------|
+| ![Main page screenshot](.github/docs/main.png)        | ![Settings screenshot](.github/docs/settings.png) |
+
+## License
+
+This program is free software: you can redistribute it and/or modify  
+it under the terms of the **GNU General Public License, version 3 or (at your option) any later version** published by the Free Software Foundation.
+
+Copyright © 2025 Grisha
+
+See the full license text in the [LICENSE](LICENSE) file or online at <https://www.gnu.org/licenses/gpl-3.0.txt>.

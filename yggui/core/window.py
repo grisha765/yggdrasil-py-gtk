@@ -173,6 +173,8 @@ class MyApp(Adw.Application):
             self.about_dialog.set_transient_for(self.win)
             self.about_dialog.set_modal(True)
             self.about_dialog.set_version(get_app_version())
+            self.about_dialog.set_hide_on_close(True)
+            self.about_dialog.connect("destroy", lambda *_: setattr(self, "about_dialog", None))
 
         self.about_dialog.present()
 

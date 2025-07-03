@@ -1,16 +1,16 @@
-# yggdrasil-go-gtk
-A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay‑network node (and optional Yggstack SOCKS proxy) on Linux. Yggdrasil‑go‑gtk wraps the official yggdrasil and yggdrasilctl binaries with an ergonomic UI that follows GNOME design guidelines. It can operate both on bare‑metal and inside a Flatpak sandbox, automatically copying host binaries into a private runtime directory when needed.
+# yggdrasil-py-gtk
+A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local Yggdrasil overlay‑network node (and optional Yggstack SOCKS proxy) on Linux. Yggdrasil-py-gtk wraps the official yggdrasil and yggdrasilctl binaries with an ergonomic UI that follows GNOME design guidelines. It can operate both on bare‑metal and inside a Flatpak sandbox, automatically copying host binaries into a private runtime directory when needed.
 
 ### Finished builds
 
-- Download appimage [releases](https://github.com/grisha765/yggdrasil-go-gtk/releases)
+- Download appimage [releases](https://github.com/grisha765/yggdrasil-py-gtk/releases)
 
 - Download the releases from flatpak:
     ```bash
-    flatpak remote-add --user yggdrasil-go-gtk https://grisha765.github.io/yggdrasil-go-gtk/grisha765.flatpakrepo
+    flatpak remote-add --user yggdrasil-py-gtk https://grisha765.github.io/yggdrasil-py-gtk/grisha765.flatpakrepo
     ```
     ```bash
-    flatpak install --user yggdrasil-go-gtk io.github.grisha765.yggdrasil-go-gtk
+    flatpak install --user yggdrasil-py-gtk io.github.grisha765.yggdrasil-py-gtk
     ```
 
 ### Initial Setup
@@ -19,8 +19,8 @@ A modern GTK 4 + libadwaita desktop interface for running, configuring and moni
 2. **Create Virtual Env**: Create a Python Virtual Environment `venv` to download the required dependencies and libraries.
 3. **Download Dependencies**: Download the required dependencies into the Virtual Environment `venv` using `uv`.
     ```bash
-    git clone https://github.com/grisha765/yggdrasil-go-gtk.git
-    cd yggdrasil-go-gtk
+    git clone https://github.com/grisha765/yggdrasil-py-gtk.git
+    cd yggdrasil-py-gtk
     python -m venv .venv
     .venv/bin/python -m pip install uv
     .venv/bin/python -m uv sync
@@ -56,7 +56,7 @@ A modern GTK 4 + libadwaita desktop interface for running, configuring and moni
 
 1. **Install with pip**:
     ```bash
-    pip install git+https://github.com/grisha765/yggdrasil-go-gtk.git@main#egg=yggdrasil-go-gtk
+    pip install git+https://github.com/grisha765/yggdrasil-py-gtk.git@main#egg=yggdrasil-py-gtk
     ```
 
 2. **Run the GUI**:

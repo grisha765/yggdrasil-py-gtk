@@ -1,4 +1,4 @@
-app-id: io.github.grisha765.yggdrasil-go-gtk
+app-id: io.github.grisha765.yggdrasil-py-gtk
 runtime: org.gnome.Platform
 runtime-version: '48'
 sdk: org.freedesktop.Sdk//24.08
@@ -8,7 +8,7 @@ finish-args:
   - --socket=wayland
   - --socket=fallback-x11
   - --share=network
-  - --own-name=io.github.grisha765.yggdrasil-go-gtk
+  - --own-name=io.github.grisha765.yggdrasil-py-gtk
   - --talk-name=org.freedesktop.Flatpak
   - --filesystem=xdg-run/yggui:create
 
@@ -54,9 +54,9 @@ modules:
     buildsystem: simple
     build-commands:
       - pip3 install --no-build-isolation --no-cache-dir --no-deps --prefix=/app .
-      - install -Dm644 xdg/io.github.grisha765.yggdrasil-go-gtk.svg /app/share/icons/hicolor/scalable/apps/io.github.grisha765.yggdrasil-go-gtk.svg
-      - install -Dm755 xdg/io.github.grisha765.yggdrasil-go-gtk.desktop /app/share/applications/io.github.grisha765.yggdrasil-go-gtk.desktop
-      - install -Dm644 xdg/io.github.grisha765.yggdrasil-go-gtk.metainfo.xml /app/share/metainfo/io.github.grisha765.yggdrasil-go-gtk.metainfo.xml
+      - install -Dm644 xdg/io.github.grisha765.yggdrasil-py-gtk.svg /app/share/icons/hicolor/scalable/apps/io.github.grisha765.yggdrasil-py-gtk.svg
+      - install -Dm755 xdg/io.github.grisha765.yggdrasil-py-gtk.desktop /app/share/applications/io.github.grisha765.yggdrasil-py-gtk.desktop
+      - install -Dm644 xdg/io.github.grisha765.yggdrasil-py-gtk.metainfo.xml /app/share/metainfo/io.github.grisha765.yggdrasil-py-gtk.metainfo.xml
     sources:
       - type: dir
         path: .

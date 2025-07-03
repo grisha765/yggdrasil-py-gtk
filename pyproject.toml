@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "yggdrasil-go-gtk"
+name = "yggdrasil-py-gtk"
 version = "0.0.1"
 description = "Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil."
 readme = "readme.md"

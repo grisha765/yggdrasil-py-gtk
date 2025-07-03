@@ -7,11 +7,11 @@ on:
     paths:
       - 'yggui/**'
       - 'xdg/**'
-      - 'io.github.grisha765.yggdrasil-go-gtk.yml'
+      - 'io.github.grisha765.yggdrasil-py-gtk.yml'
   workflow_dispatch:
 
 env:
-  MANIFEST: io.github.grisha765.yggdrasil-go-gtk.yml
+  MANIFEST: io.github.grisha765.yggdrasil-py-gtk.yml
 
 jobs:
   build:

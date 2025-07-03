@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>io.github.grisha765.yggdrasil-go-gtk</id>
+  <id>io.github.grisha765.yggdrasil-py-gtk</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>Yggdrasil-GTK</name>
@@ -9,8 +9,8 @@
     <p>Simple Libadwaita/GTK 4 frontend that shows status and lets you control Yggdrasil.</p>
   </description>
   <provides><binary>yggui</binary></provides>
-  <launchable type="desktop-id">io.github.grisha765.yggdrasil-go-gtk.desktop</launchable>
-  <url type="homepage">https://github.com/grisha765/yggdrasil-go-gtk</url>
+  <launchable type="desktop-id">io.github.grisha765.yggdrasil-py-gtk.desktop</launchable>
+  <url type="homepage">https://github.com/grisha765/yggdrasil-py-gtk</url>
   <releases>
     <release version="0.0.1" date="2025-07-02"/>
   </releases>

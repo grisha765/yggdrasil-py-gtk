@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Yggdrasil-GTK
 Comment=Graphical interface for the Yggdrasil network
-Icon=io.github.grisha765.yggdrasil-go-gtk
+Icon=io.github.grisha765.yggdrasil-py-gtk
 Type=Application
 Exec=yggui %U
 Categories=Network;GTK;Utility;

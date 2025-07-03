@@ -76,7 +76,7 @@ jobs:
           chmod +x entrypoint.sh
 
           cat > requirements.txt <<EOF
-          yggdrasil-go-gtk@file:///$GITHUB_WORKSPACE/${{ github.event.repository.name }}
+          yggdrasil-py-gtk@file:///$GITHUB_WORKSPACE/${{ github.event.repository.name }}
           pygobject>=3.52.2
           EOF
         working-directory: appimage

@@ -4,7 +4,7 @@
   <requires lib="adw"  version="1.0"/>
 
   <object class="AdwAboutWindow" id="about_window">
-    <property name="application-name">Yggdrasil-GTK</property>
+    <property name="application-name">Drosophila</property>
     <property name="application-icon">io.github.grisha765.Drosophila</property>
     <property name="developer-name">Grisha</property>
     <property name="license-type">gpl-3-0</property>

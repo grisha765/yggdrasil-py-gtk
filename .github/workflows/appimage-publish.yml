@@ -89,8 +89,8 @@ jobs:
       - name: Upload build ${{ matrix.arch }}
         uses: actions/upload-artifact@v4
         with:
-          name: Yggdrasil-GTK-${{ matrix.arch }}
-          path: Yggdrasil-GTK-${{ matrix.arch }}.AppImage
+          name: Drosophila-${{ matrix.arch }}
+          path: Drosophila-${{ matrix.arch }}.AppImage
 
 
   publish:
@@ -113,7 +113,7 @@ jobs:
       - name: Download all builds
         uses: actions/download-artifact@v4
         with:
-          pattern: Yggdrasil-GTK-*
+          pattern: Drosophila-*
           path: builds
           merge-multiple: true
 
@@ -126,5 +126,5 @@ jobs:
           name: Build from commit ${{ steps.vars.outputs.short_sha }}
           prerelease: true
           generate_release_notes: true
-          files: builds/Yggdrasil-GTK-*
+          files: builds/Drosophila-*
 

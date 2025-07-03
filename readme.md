@@ -15,8 +15,8 @@ flatpak install --user Drosophila io.github.grisha765.Drosophila
 Download the latest AppImage from the [releases page](https://github.com/grisha765/Drosophila/releases) and make it executable:
 
 ```bash
-chmod +x Yggdrasil-GTK-*.AppImage 
-./Yggdrasil-GTK-*.AppImage
+chmod +x Drosophila-*.AppImage 
+./Drosophila-*.AppImage
 ```
 
 ### Python package

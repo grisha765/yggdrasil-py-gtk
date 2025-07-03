@@ -1,12 +1,12 @@
 # Developer deployment
 
-These steps clone **yggdrasil-py-gtk**, compile the required binaries and run the UI locally. Tested on Fedora 42; adjust package names for your distro.
+These steps clone **Drosophila**, compile the required binaries and run the UI locally. Tested on Fedora 42; adjust package names for your distro.
 
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/grisha765/yggdrasil-py-gtk.git
-cd yggdrasil-py-gtk
+git clone https://github.com/grisha765/Drosophila.git
+cd Drosophila
 ````
 
 ## 2. Install system packages

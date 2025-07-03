@@ -1,4 +1,4 @@
-# yggdrasil-py-gtk
+# Drosophila
 A modern GTK 4 + libadwaita desktop interface for running, configuring and monitoring a local [Yggdrasil](https://github.com/yggdrasil-network/yggdrasil-go) overlay-network node on Linux.
 
 ## Quick start
@@ -6,13 +6,13 @@ A modern GTK 4 + libadwaita desktop interface for running, configuring and monit
 ### Flatpak
 
 ```bash
-flatpak remote-add --user yggdrasil-py-gtk https://grisha765.github.io/yggdrasil-py-gtk/grisha765.flatpakrepo
-flatpak install --user yggdrasil-py-gtk io.github.grisha765.yggdrasil-py-gtk
+flatpak remote-add --user Drosophila https://grisha765.github.io/Drosophila/grisha765.flatpakrepo
+flatpak install --user Drosophila io.github.grisha765.Drosophila
 ````
 
 ### AppImage
 
-Download the latest AppImage from the [releases page](https://github.com/grisha765/yggdrasil-py-gtk/releases) and make it executable:
+Download the latest AppImage from the [releases page](https://github.com/grisha765/Drosophila/releases) and make it executable:
 
 ```bash
 chmod +x Yggdrasil-GTK-*.AppImage 
@@ -22,7 +22,7 @@ chmod +x Yggdrasil-GTK-*.AppImage
 ### Python package
 
 ```bash
-pip install --upgrade git+https://github.com/grisha765/yggdrasil-py-gtk.git@main#egg=yggdrasil-py-gtk
+pip install --upgrade git+https://github.com/grisha765/Drosophila.git@main#egg=Drosophila
 python -m yggui
 ```
 

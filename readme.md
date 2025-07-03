@@ -31,9 +31,9 @@ python -m yggui
 
 ## Screenshots
 
-| Main page                                             | Settings                                                 |
+| Screenshot 1                                          | Screenshot 2                                             |
 |-------------------------------------------------------|----------------------------------------------------------|
-| ![Main page screenshot](.github/docs/main.png)        | ![Settings screenshot](.github/docs/settings.png) |
+| ![Main page screenshot](.github/docs/main.png)        | ![Settings screenshot](.github/docs/settings.png)        |
 
 ## Features
 

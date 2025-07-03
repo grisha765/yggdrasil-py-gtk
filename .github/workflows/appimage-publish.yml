@@ -71,6 +71,7 @@ jobs:
           #!/usr/bin/env sh
           set -e
           export PATH="$APPDIR/usr/bin:$PATH"
+          export XDG_DATA_DIRS="$APPDIR/usr/share:$XDG_DATA_DIRS"
           exec {{ python-executable }} -I -m yggui "$@"
           EOF
           chmod +x entrypoint.sh

@@ -29,6 +29,12 @@ python -m yggui
 > **Want to build and run from source?**
 > See the [developer deployment guide](.github/docs/development.md).
 
+## Screenshots
+
+| Main page                                             | Settings                                                 |
+|-------------------------------------------------------|----------------------------------------------------------|
+| ![Main page screenshot](.github/docs/main.png)        | ![Settings screenshot](.github/docs/settings.png) |
+
 ## Features
 
 - One-click switch toggle Yggdrasil daemon or Yggstack SOCKS proxy
@@ -39,12 +45,6 @@ python -m yggui
 - Clipboard helpers for address & subnet
 - Flatpak-aware: automatically moves required binaries into the sandbox
 - Graceful shutdown on exit or SIGINT
-
-## Screenshots
-
-| Main page                                             | Settings                                                 |
-|-------------------------------------------------------|----------------------------------------------------------|
-| ![Main page screenshot](.github/docs/main.png)        | ![Settings screenshot](.github/docs/settings.png) |
 
 ## License
 

@@ -141,14 +141,15 @@ def open_add_peer_dialog(app):
     domain_row: Adw.EntryRow = builder.get_object("domain_row")
     proto_row: Adw.ComboRow = builder.get_object("proto_row")
     sni_row: Adw.EntryRow = builder.get_object("sni_row")
+    sni_group = builder.get_object("sni_group")
     domain_error: Gtk.Label = builder.get_object("domain_error")
     sni_error:    Gtk.Label = builder.get_object("sni_error")
 
     def _update_sni_row(_row=None, _pspec=None):
         tls_selected = proto_row.get_selected() == 1
-        sni_row.set_visible(tls_selected)
+        sni_group.set_visible(tls_selected)
         if not tls_selected:
-            sni_error.set_visible(False)
+            sni_error.add_css_class("hidden-error")
         _validate()
 
     proto_row.connect("notify::selected", _update_sni_row)
@@ -163,10 +164,10 @@ def open_add_peer_dialog(app):
 
         if domain_has_text and not domain_valid:
             domain_row.add_css_class("error")
-            domain_error.set_visible(True)
+            domain_error.remove_css_class("hidden-error")
         else:
             domain_row.remove_css_class("error")
-            domain_error.set_visible(False)
+            domain_error.add_css_class("hidden-error")
 
         sni_valid = True
         if proto == "tls":
@@ -175,13 +176,13 @@ def open_add_peer_dialog(app):
 
             if sni_has_text and not sni_valid:
                 sni_row.add_css_class("error")
-                sni_error.set_visible(True)
+                sni_error.remove_css_class("hidden-error")
             else:
                 sni_row.remove_css_class("error")
-                sni_error.set_visible(False)
+                sni_error.add_css_class("hidden-error")
         else:
             sni_row.remove_css_class("error")
-            sni_error.set_visible(False)
+            sni_error.add_css_class("hidden-error")
 
         dialog.set_response_enabled("add", domain_valid and sni_valid)
 

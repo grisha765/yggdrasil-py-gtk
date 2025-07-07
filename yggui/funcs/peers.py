@@ -76,6 +76,30 @@ def save_peers_to_disk(app):
     write_config(cfg)
 
 
+def proto_widget(proto: str) -> Gtk.Widget:
+    base_name = {
+        "tcp": "network-wired-symbolic",
+        "tls": "network-wired-symbolic",
+        "quic": "network-transmit-receive-symbolic",
+        "ws":  "web-browser-symbolic",
+        "wss": "web-browser-symbolic",
+    }.get(proto, "network-server-symbolic")
+
+    base_img = Gtk.Image.new_from_icon_name(base_name)
+
+    if proto in {"tls", "wss"}:
+        overlay = Gtk.Overlay()
+        overlay.set_child(base_img)
+        lock = Gtk.Image.new_from_icon_name("security-high-symbolic")
+        lock.set_pixel_size(12)
+        lock.set_valign(Gtk.Align.END)
+        lock.set_margin_bottom(2)
+        overlay.add_overlay(lock)
+        return overlay
+
+    return base_img
+
+
 def rebuild_peers_box(app):
     child = app.peers_box.get_first_child()
     while child:
@@ -105,14 +129,7 @@ def rebuild_peers_box(app):
         row.set_subtitle(" • ".join(subtitle_parts))
         row.set_activatable(False)
 
-        icon_map = {
-            "tcp": "network-wired-symbolic",
-            "tls": "security-high-symbolic",
-            "quic": "network-transmit-receive-symbolic",
-        }
-        icon_name = icon_map.get(proto, "network-server-symbolic")
-        icon = Gtk.Image.new_from_icon_name(icon_name)
-        row.add_prefix(icon)
+        row.add_prefix(proto_widget(proto))
 
         trash_btn = Gtk.Button()
         trash_btn.set_icon_name("user-trash-symbolic")
@@ -124,7 +141,12 @@ def rebuild_peers_box(app):
         app.peers_box.append(row)
 
         app._peer_rows[peer.split("?", 1)[0]] = row
-        app._peer_icons[peer.split("?", 1)[0]] = (icon, icon_name)
+        app._peer_icons[peer.split("?", 1)[0]] = (
+            row.get_first_child().get_first_child()
+            if proto in {"tls", "wss"}
+            else row.get_first_child(),
+            base if (base := proto_widget(proto)) else None,
+        )
 
     count = len(app.peers)
     if count == 0:
@@ -157,7 +179,7 @@ def open_add_peer_dialog(app):
     def _validate(_row=None, _pspec=None):
         domain = domain_row.get_text().strip()
         sni    = sni_row.get_text().strip()
-        proto  = ["tcp", "tls", "quic"][proto_row.get_selected()]
+        proto  = ["tcp", "tls", "quic", "ws", "wss"][proto_row.get_selected()]
 
         domain_has_text = bool(domain)
         domain_valid    = bool(Regexp.domain_re.fullmatch(domain))
@@ -196,7 +218,7 @@ def open_add_peer_dialog(app):
         if not domain:
             return
 
-        proto = ["tcp", "tls", "quic"][proto_row.get_selected()]
+        proto = ["tcp", "tls", "quic", "ws", "wss"][proto_row.get_selected()]
         peer  = f"{proto}://{domain}"
 
         sni = sni_row.get_text().strip()
